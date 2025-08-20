@@ -160,9 +160,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 238887382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b4d578596d74db5897c3d29a0f71edc, type: 3}
+  m_Script: {fileID: 11500000, guid: 46fd0d67b76447669fdf0427a408becd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GraphToolKit.Runtime::GraphToolKitDB.Runtime.GameDatabase
+  m_EditorClassIdentifier: GraphTookKitDB::GameDatabase
   Missions: []
   Quests: []
   Objectives: []
