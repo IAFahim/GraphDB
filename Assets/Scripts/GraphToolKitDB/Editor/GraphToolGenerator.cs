@@ -455,6 +455,7 @@ public class GraphToolGenerator : EditorWindow
         }
         builder.AppendLine();
         builder.AppendLine("            // --- PASS 2: Create links by traversing graph connections ---");
+        builder.AppendLine("            int linkId=0");
         builder.AppendLine("            foreach (var sourceNode in graph.GetNodes())");
         builder.AppendLine("            {");
         builder.AppendLine("                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == \"OutputLink\");");
@@ -474,7 +475,7 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("                    var targetDataType = GetNodeType(targetNode);");
         builder.AppendLine("                    if (targetDataType == null) continue;");
         builder.AppendLine();
-        builder.AppendLine("                    var link = new Link { SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId, LinkTypeID = 0 };");
+        builder.AppendLine("                    var link = new Link { ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId, LinkTypeID = 0 };");
         builder.AppendLine("                    runtimeAsset.Links.Add(link);");
         builder.AppendLine("                }");
         builder.AppendLine("            }");
@@ -521,8 +522,8 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine();
         builder.AppendLine("        protected override void OnDefinePorts(IPortDefinitionContext context)");
         builder.AppendLine("        {");
-        builder.AppendLine("            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName(\" \").Build();");
-        builder.AppendLine("            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName(\" \").Build();");
+        builder.AppendLine("            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName(\"In\").Build();");
+        builder.AppendLine("            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName(\"Out\").Build();");
         builder.AppendLine();
         foreach (var field in fields.Where(f => !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) && !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
         {

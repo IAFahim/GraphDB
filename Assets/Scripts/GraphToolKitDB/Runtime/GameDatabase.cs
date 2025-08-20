@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GraphTookKitDB.Runtime;
 using UnityEngine;
 
 namespace GraphToolKitDB.Runtime
@@ -669,165 +670,10 @@ namespace GraphToolKitDB.Runtime
             get => Id;
             set => Id = value;
         }
-        public ushort SourceType;
+        public EntityType SourceType;
         public int SourceID;
-        public ushort TargetType;
+        public EntityType TargetType;
         public int TargetID;
         public ushort LinkTypeID;
     }
-
-// Database Manager
-    public class GameDatabase : MonoBehaviour
-    {
-        // Entity Tables
-        [SerializeField] public List<Mission> Missions = new();
-        [SerializeField] public List<Quest> Quests = new();
-        [SerializeField] public List<Objective> Objectives = new();
-        [SerializeField] public List<Item> Items = new();
-        [SerializeField] public List<Equipment> Equipments = new();
-        [SerializeField] public List<Player> Players = new();
-        [SerializeField] public List<Character> Characters = new();
-        [SerializeField] public List<Stat> Stats = new();
-        [SerializeField] public List<Location> Locations = new();
-        [SerializeField] public List<TimeTick> TimeTicks = new();
-        [SerializeField] public List<RangeAsInt> RangeAsInts = new();
-        [SerializeField] public List<RangeAsFloat> RangeAsFloats = new();
-        [SerializeField] public List<Reward> Rewards = new();
-        [SerializeField] public List<Inventory> Inventories = new();
-        [SerializeField] public List<Skill> Skills = new();
-        [SerializeField] public List<Effect> Effects = new();
-        [SerializeField] public List<Combat> Combats = new();
-        [SerializeField] public List<Economy> Economies = new();
-        [SerializeField] public List<AI> AIs = new();
-        [SerializeField] public List<Achievement> Achievements = new();
-        [SerializeField] public List<Guild> Guilds = new();
-        
-        // State Tables  
-        [SerializeField] public List<MissionState> MissionStates = new();
-        [SerializeField] public List<QuestState> QuestStates = new();
-        [SerializeField] public List<ObjectiveState> ObjectiveStates = new();
-        [SerializeField] public List<CharacterState> CharacterStates = new();
-        [SerializeField] public List<StatState> StatStates = new();
-        [SerializeField] public List<TimeState> TimeStates = new();
-        [SerializeField] public List<InventoryState> InventoryStates = new();
-        [SerializeField] public List<SkillState> SkillStates = new();
-        [SerializeField] public List<EffectState> EffectStates = new();
-        [SerializeField] public List<CombatState> CombatStates = new();
-        [SerializeField] public List<EconomyState> EconomyStates = new();
-        [SerializeField] public List<AIState> AIStates = new();
-        [SerializeField] public List<AchievementState> AchievementStates = new();
-        [SerializeField] public List<GuildState> GuildStates = new();
-
-        // Meta Tables
-        [SerializeField] public List<Name> Names = new();
-        [SerializeField] public List<Description> Descriptions = new();
-        [SerializeField] public List<Tag> Tags = new();
-        [SerializeField] public List<Link> Links = new();
-
-        // Generic CRUD
-        public T Create<T>(T entity) where T : struct, IEntity
-        {
-            GetTable<T>().Add(entity);
-            return entity;
-        }
-
-        public T? GetByID<T>(int id) where T : struct, IEntity =>
-            GetTable<T>().Cast<T?>().FirstOrDefault(e => e?.ID == id);
-
-        public List<T> GetAll<T>() where T : struct, IEntity => GetTable<T>();
-
-        public bool TryUpdate<T>(T entity) where T : struct, IEntity
-        {
-            var table = GetTable<T>();
-            for (int i = 0; i < table.Count; i++)
-                if (table[i].ID == entity.ID)
-                {
-                    table[i] = entity;
-                    return true;
-                }
-
-            return false;
-        }
-
-        public bool Delete<T>(int id) where T : struct, IEntity
-        {
-            var table = GetTable<T>();
-            for (int i = 0; i < table.Count; i++)
-                if (table[i].ID == id)
-                {
-                    table.RemoveAt(i);
-                    return true;
-                }
-
-            return false;
-        }
-
-        // Link Operations
-        public Link CreateLink(ushort sourceType, int sourceID, ushort targetType, int targetID, ushort linkTypeID) =>
-            Create(new Link
-            {
-                SourceType = sourceType, SourceID = sourceID, TargetType = targetType, TargetID = targetID,
-                LinkTypeID = linkTypeID
-            });
-
-        public List<T> GetLinked<T>(ushort sourceType, int sourceID, ushort targetType, ushort linkTypeID)
-            where T : struct, IEntity => GetTable<T>().Where(e => Links.Any(l =>
-            l.SourceType == sourceType && l.SourceID == sourceID && l.TargetType == targetType && l.TargetID == e.ID &&
-            l.LinkTypeID == linkTypeID)).ToList();
-
-        public List<Link> GetLinks(ushort sourceType, int sourceID, ushort linkTypeID = 0) => Links.Where(l =>
-                l.SourceType == sourceType && l.SourceID == sourceID && (linkTypeID == 0 || l.LinkTypeID == linkTypeID))
-            .ToList();
-
-        // State Management
-        public TState GetState<TEntity, TState>(int entityID)
-            where TEntity : struct, IEntity, IStateful<TState> where TState : struct, IEntity =>
-            GetTable<TState>().FirstOrDefault(s => s.ID == entityID);
-
-        public TState CreateState<TEntity, TState>(TEntity entity) where TEntity : struct, IEntity, IStateful<TState>
-            where TState : struct, IEntity
-        {
-            var state = entity.CreateState();
-            Create(state);
-            return state;
-        }
-
-        // Meta Helpers
-        public string GetName(int entityID) => Names.FirstOrDefault(n => n.ID == entityID).Text ?? "";
-
-        public Name CreateName(int entityID, string text, ushort languageID = 0) =>
-            Create(new Name { Text = text, LanguageID = languageID });
-
-        // Table Resolver
-        private List<T> GetTable<T>() where T : struct, IEntity => typeof(T).Name switch
-        {
-            nameof(Mission) => Missions as List<T>, nameof(Quest) => Quests as List<T>,
-            nameof(Objective) => Objectives as List<T>,
-            nameof(Item) => Items as List<T>, nameof(Equipment) => Equipments as List<T>,
-            nameof(Player) => Players as List<T>,
-            nameof(Character) => Characters as List<T>, nameof(Stat) => Stats as List<T>,
-            nameof(Location) => Locations as List<T>,
-            nameof(TimeTick) => TimeTicks as List<T>, nameof(RangeAsInt) => RangeAsInts as List<T>,
-            nameof(RangeAsFloat) => RangeAsFloats as List<T>,
-            nameof(Reward) => Rewards as List<T>, nameof(Inventory) => Inventories as List<T>,
-            nameof(Skill) => Skills as List<T>,
-            nameof(Effect) => Effects as List<T>, nameof(Combat) => Combats as List<T>,
-            nameof(Economy) => Economies as List<T>,
-            nameof(AI) => AIs as List<T>, nameof(Achievement) => Achievements as List<T>,
-            nameof(Guild) => Guilds as List<T>,
-            nameof(MissionState) => MissionStates as List<T>, nameof(QuestState) => QuestStates as List<T>,
-            nameof(ObjectiveState) => ObjectiveStates as List<T>,
-            nameof(CharacterState) => CharacterStates as List<T>, nameof(StatState) => StatStates as List<T>,
-            nameof(TimeState) => TimeStates as List<T>,
-            nameof(InventoryState) => InventoryStates as List<T>, nameof(SkillState) => SkillStates as List<T>,
-            nameof(EffectState) => EffectStates as List<T>,
-            nameof(CombatState) => CombatStates as List<T>, nameof(EconomyState) => EconomyStates as List<T>,
-            nameof(AIState) => AIStates as List<T>,
-            nameof(AchievementState) => AchievementStates as List<T>, nameof(GuildState) => GuildStates as List<T>,
-            nameof(Name) => Names as List<T>, nameof(Description) => Descriptions as List<T>,
-            nameof(Tag) => Tags as List<T>, nameof(Link) => Links as List<T>,
-            _ => throw new ArgumentException($"Unknown type: {typeof(T).Name}")
-        };
-    }
-    
 }
