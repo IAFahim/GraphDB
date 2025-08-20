@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GraphToolKitDB.Runtime
 {
     // Core Interface
-    public interface IPrimaryKey
+    public interface IEntity
     {
         int ID { get; set; }
     }
@@ -74,7 +74,7 @@ namespace GraphToolKitDB.Runtime
 
 // Core Entity Structs
     [Serializable]
-    public struct Mission : IPrimaryKey, IStateful<MissionState>
+    public struct Mission : IEntity, IStateful<MissionState>
     {
         public int Id;
         public int ID
@@ -92,7 +92,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Quest : IPrimaryKey, IStateful<QuestState>
+    public struct Quest : IEntity, IStateful<QuestState>
     {
         public int Id;
         public int ID
@@ -107,7 +107,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Objective : IPrimaryKey, IStateful<ObjectiveState>
+    public struct Objective : IEntity, IStateful<ObjectiveState>
     {
         public int Id;
         public int ID
@@ -122,7 +122,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Item : IPrimaryKey
+    public struct Item : IEntity
     {
         public int Id;
         public int ID
@@ -138,7 +138,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Equipment : IPrimaryKey
+    public struct Equipment : IEntity
     {
         public int Id;
         public int ID
@@ -153,7 +153,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Player : IPrimaryKey
+    public struct Player : IEntity
     {
         public int Id;
         public int ID
@@ -168,7 +168,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Character : IPrimaryKey, IStateful<CharacterState>
+    public struct Character : IEntity, IStateful<CharacterState>
     {
         public int Id;
         public int ID
@@ -184,7 +184,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Stat : IPrimaryKey, IStateful<StatState>
+    public struct Stat : IEntity, IStateful<StatState>
     {
         public int Id;
         public int ID
@@ -200,7 +200,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Location : IPrimaryKey
+    public struct Location : IEntity
     {
         public int Id;
         public int ID
@@ -215,7 +215,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct TimeTick : IPrimaryKey, IStateful<TimeState>
+    public struct TimeTick : IEntity, IStateful<TimeState>
     {
         public int Id;
         public int ID
@@ -231,7 +231,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct RangeAsInt : IPrimaryKey
+    public struct RangeAsInt : IEntity
     {
         public int Id;
         public int ID
@@ -245,7 +245,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct RangeAsFloat : IPrimaryKey
+    public struct RangeAsFloat : IEntity
     {
         public int Id;
         public int ID
@@ -259,7 +259,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Reward : IPrimaryKey
+    public struct Reward : IEntity
     {
         public int Id;
         public int ID
@@ -274,7 +274,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Inventory : IPrimaryKey, IStateful<InventoryState>
+    public struct Inventory : IEntity, IStateful<InventoryState>
     {
         public int Id;
         public int ID
@@ -289,7 +289,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Skill : IPrimaryKey, IStateful<SkillState>
+    public struct Skill : IEntity, IStateful<SkillState>
     {
         public int Id;
         public int ID
@@ -307,7 +307,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Effect : IPrimaryKey, IStateful<EffectState>
+    public struct Effect : IEntity, IStateful<EffectState>
     {
         public int Id;
         public int ID
@@ -323,7 +323,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Combat : IPrimaryKey, IStateful<CombatState>
+    public struct Combat : IEntity, IStateful<CombatState>
     {
         public int Id;
         public int ID
@@ -339,7 +339,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Economy : IPrimaryKey, IStateful<EconomyState>
+    public struct Economy : IEntity, IStateful<EconomyState>
     {
         public int Id;
         public int ID
@@ -357,7 +357,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct AI : IPrimaryKey, IStateful<AIState>
+    public struct AI : IEntity, IStateful<AIState>
     {
         public int Id;
         public int ID
@@ -373,7 +373,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Achievement : IPrimaryKey, IStateful<AchievementState>
+    public struct Achievement : IEntity, IStateful<AchievementState>
     {
         public int Id;
         public int ID
@@ -389,7 +389,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Guild : IPrimaryKey, IStateful<GuildState>
+    public struct Guild : IEntity, IStateful<GuildState>
     {
         public int Id;
         public int ID
@@ -406,7 +406,7 @@ namespace GraphToolKitDB.Runtime
 
 // State Structs
     [Serializable]
-    public struct MissionState : IPrimaryKey
+    public struct MissionState : IEntity
     {
         public int Id;
 
@@ -422,7 +422,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct QuestState : IPrimaryKey
+    public struct QuestState : IEntity
     {
         public int Id;
 
@@ -437,7 +437,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct ObjectiveState : IPrimaryKey
+    public struct ObjectiveState : IEntity
     {
         public int Id;
 
@@ -452,7 +452,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct CharacterState : IPrimaryKey
+    public struct CharacterState : IEntity
     {
         public int Id;
 
@@ -468,7 +468,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct StatState : IPrimaryKey
+    public struct StatState : IEntity
     {
         public int Id;
 
@@ -483,7 +483,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct TimeState : IPrimaryKey
+    public struct TimeState : IEntity
     {
         public int Id;
 
@@ -499,7 +499,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct InventoryState : IPrimaryKey
+    public struct InventoryState : IEntity
     {
         public int Id;
 
@@ -514,7 +514,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct SkillState : IPrimaryKey
+    public struct SkillState : IEntity
     {
         public int Id;
 
@@ -530,7 +530,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct EffectState : IPrimaryKey
+    public struct EffectState : IEntity
     {
         public int Id;
 
@@ -545,7 +545,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct CombatState : IPrimaryKey
+    public struct CombatState : IEntity
     {
         public int Id;
 
@@ -560,7 +560,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct EconomyState : IPrimaryKey
+    public struct EconomyState : IEntity
     {
         public int Id;
 
@@ -575,7 +575,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct AIState : IPrimaryKey
+    public struct AIState : IEntity
     {
         public int Id;
 
@@ -590,7 +590,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct AchievementState : IPrimaryKey
+    public struct AchievementState : IEntity
     {
         public int Id;
 
@@ -605,7 +605,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct GuildState : IPrimaryKey
+    public struct GuildState : IEntity
     {
         public int Id;
 
@@ -621,7 +621,7 @@ namespace GraphToolKitDB.Runtime
 
 // Meta Structs
     [Serializable]
-    public struct Name : IPrimaryKey
+    public struct Name : IEntity
     {
         public int Id;
         public int ID
@@ -634,7 +634,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Description : IPrimaryKey
+    public struct Description : IEntity
     {
         public int Id;
         public int ID
@@ -647,7 +647,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Tag : IPrimaryKey
+    public struct Tag : IEntity
     {
         public int Id;
         public int ID
@@ -661,7 +661,7 @@ namespace GraphToolKitDB.Runtime
 
 // Link System
     [Serializable]
-    public struct Link : IPrimaryKey
+    public struct Link : IEntity
     {
         public int Id;
         public int ID
@@ -725,18 +725,18 @@ namespace GraphToolKitDB.Runtime
         [SerializeField] public List<Link> Links = new();
 
         // Generic CRUD
-        public T Create<T>(T entity) where T : struct, IPrimaryKey
+        public T Create<T>(T entity) where T : struct, IEntity
         {
             GetTable<T>().Add(entity);
             return entity;
         }
 
-        public T? GetByID<T>(int id) where T : struct, IPrimaryKey =>
+        public T? GetByID<T>(int id) where T : struct, IEntity =>
             GetTable<T>().Cast<T?>().FirstOrDefault(e => e?.ID == id);
 
-        public List<T> GetAll<T>() where T : struct, IPrimaryKey => GetTable<T>();
+        public List<T> GetAll<T>() where T : struct, IEntity => GetTable<T>();
 
-        public bool TryUpdate<T>(T entity) where T : struct, IPrimaryKey
+        public bool TryUpdate<T>(T entity) where T : struct, IEntity
         {
             var table = GetTable<T>();
             for (int i = 0; i < table.Count; i++)
@@ -749,7 +749,7 @@ namespace GraphToolKitDB.Runtime
             return false;
         }
 
-        public bool Delete<T>(int id) where T : struct, IPrimaryKey
+        public bool Delete<T>(int id) where T : struct, IEntity
         {
             var table = GetTable<T>();
             for (int i = 0; i < table.Count; i++)
@@ -771,7 +771,7 @@ namespace GraphToolKitDB.Runtime
             });
 
         public List<T> GetLinked<T>(ushort sourceType, int sourceID, ushort targetType, ushort linkTypeID)
-            where T : struct, IPrimaryKey => GetTable<T>().Where(e => Links.Any(l =>
+            where T : struct, IEntity => GetTable<T>().Where(e => Links.Any(l =>
             l.SourceType == sourceType && l.SourceID == sourceID && l.TargetType == targetType && l.TargetID == e.ID &&
             l.LinkTypeID == linkTypeID)).ToList();
 
@@ -781,11 +781,11 @@ namespace GraphToolKitDB.Runtime
 
         // State Management
         public TState GetState<TEntity, TState>(int entityID)
-            where TEntity : struct, IPrimaryKey, IStateful<TState> where TState : struct, IPrimaryKey =>
+            where TEntity : struct, IEntity, IStateful<TState> where TState : struct, IEntity =>
             GetTable<TState>().FirstOrDefault(s => s.ID == entityID);
 
-        public TState CreateState<TEntity, TState>(TEntity entity) where TEntity : struct, IPrimaryKey, IStateful<TState>
-            where TState : struct, IPrimaryKey
+        public TState CreateState<TEntity, TState>(TEntity entity) where TEntity : struct, IEntity, IStateful<TState>
+            where TState : struct, IEntity
         {
             var state = entity.CreateState();
             Create(state);
@@ -799,7 +799,7 @@ namespace GraphToolKitDB.Runtime
             Create(new Name { Text = text, LanguageID = languageID });
 
         // Table Resolver
-        private List<T> GetTable<T>() where T : struct, IPrimaryKey => typeof(T).Name switch
+        private List<T> GetTable<T>() where T : struct, IEntity => typeof(T).Name switch
         {
             nameof(Mission) => Missions as List<T>, nameof(Quest) => Quests as List<T>,
             nameof(Objective) => Objectives as List<T>,

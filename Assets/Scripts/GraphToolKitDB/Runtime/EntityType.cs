@@ -1,0 +1,48 @@
+// ----- AUTO-GENERATED ENTITY TYPE FILE BY GraphToolGenerator.cs -----
+
+namespace GraphTookKitDB.Runtime
+{
+    public enum EntityType : ushort
+    {
+        None = 0,
+        Achievement = 1,
+        AchievementState = 2,
+        AI = 3,
+        AIState = 4,
+        Character = 5,
+        CharacterState = 6,
+        Combat = 7,
+        CombatState = 8,
+        Description = 9,
+        Economy = 10,
+        EconomyState = 11,
+        Effect = 12,
+        EffectState = 13,
+        Equipment = 14,
+        Guild = 15,
+        GuildState = 16,
+        Inventory = 17,
+        InventoryState = 18,
+        Item = 19,
+        Link = 20,
+        Location = 21,
+        Mission = 22,
+        MissionState = 23,
+        Name = 24,
+        Objective = 25,
+        ObjectiveState = 26,
+        Player = 27,
+        Quest = 28,
+        QuestState = 29,
+        RangeAsFloat = 30,
+        RangeAsInt = 31,
+        Reward = 32,
+        Skill = 33,
+        SkillState = 34,
+        Stat = 35,
+        StatState = 36,
+        Tag = 37,
+        TimeState = 38,
+        TimeTick = 39,
+    }
+}
