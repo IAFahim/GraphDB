@@ -651,7 +651,7 @@ namespace GraphTookKitDB.Editor
                         ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name),
                         SourceID = sourceId,
                         TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name),
-                        TargetID = targetId, LinkTypeID = 0
+                        TargetID = targetId
                     };
                     runtimeAsset.Links.Add(link);
                 }

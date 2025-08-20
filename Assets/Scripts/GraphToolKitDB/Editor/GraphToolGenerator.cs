@@ -455,7 +455,7 @@ public class GraphToolGenerator : EditorWindow
         }
         builder.AppendLine();
         builder.AppendLine("            // --- PASS 2: Create links by traversing graph connections ---");
-        builder.AppendLine("            int linkId=0");
+        builder.AppendLine("            int linkId = 0;");
         builder.AppendLine("            foreach (var sourceNode in graph.GetNodes())");
         builder.AppendLine("            {");
         builder.AppendLine("                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == \"OutputLink\");");
@@ -475,7 +475,7 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("                    var targetDataType = GetNodeType(targetNode);");
         builder.AppendLine("                    if (targetDataType == null) continue;");
         builder.AppendLine();
-        builder.AppendLine("                    var link = new Link { ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId, LinkTypeID = 0 };");
+        builder.AppendLine("                    var link = new Link { ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId };");
         builder.AppendLine("                    runtimeAsset.Links.Add(link);");
         builder.AppendLine("                }");
         builder.AppendLine("            }");

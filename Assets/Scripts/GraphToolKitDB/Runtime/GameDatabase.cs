@@ -674,6 +674,5 @@ namespace GraphToolKitDB.Runtime
         public int SourceID;
         public EntityType TargetType;
         public int TargetID;
-        public ushort LinkTypeID;
     }
 }
