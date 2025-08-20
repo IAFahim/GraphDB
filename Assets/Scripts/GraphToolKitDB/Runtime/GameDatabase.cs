@@ -215,7 +215,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Time : IPrimaryKey, IStateful<TimeState>
+    public struct TimeTick : IPrimaryKey, IStateful<TimeState>
     {
         public int Id;
         public int ID
@@ -231,7 +231,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct RangeInt : IPrimaryKey
+    public struct RangeAsInt : IPrimaryKey
     {
         public int Id;
         public int ID
@@ -245,7 +245,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct RangeFloat : IPrimaryKey
+    public struct RangeAsFloat : IPrimaryKey
     {
         public int Id;
         public int ID
@@ -689,9 +689,9 @@ namespace GraphToolKitDB.Runtime
         [SerializeField] public List<Character> Characters = new();
         [SerializeField] public List<Stat> Stats = new();
         [SerializeField] public List<Location> Locations = new();
-        [SerializeField] public List<Time> Times = new();
-        [SerializeField] public List<RangeInt> RangeInts = new();
-        [SerializeField] public List<RangeFloat> RangeFloats = new();
+        [SerializeField] public List<TimeTick> TimeTicks = new();
+        [SerializeField] public List<RangeAsInt> RangeAsInts = new();
+        [SerializeField] public List<RangeAsFloat> RangeAsFloats = new();
         [SerializeField] public List<Reward> Rewards = new();
         [SerializeField] public List<Inventory> Inventories = new();
         [SerializeField] public List<Skill> Skills = new();
@@ -807,8 +807,8 @@ namespace GraphToolKitDB.Runtime
             nameof(Player) => Players as List<T>,
             nameof(Character) => Characters as List<T>, nameof(Stat) => Stats as List<T>,
             nameof(Location) => Locations as List<T>,
-            nameof(Time) => Times as List<T>, nameof(RangeInt) => RangeInts as List<T>,
-            nameof(RangeFloat) => RangeFloats as List<T>,
+            nameof(TimeTick) => TimeTicks as List<T>, nameof(RangeAsInt) => RangeAsInts as List<T>,
+            nameof(RangeAsFloat) => RangeAsFloats as List<T>,
             nameof(Reward) => Rewards as List<T>, nameof(Inventory) => Inventories as List<T>,
             nameof(Skill) => Skills as List<T>,
             nameof(Effect) => Effects as List<T>, nameof(Combat) => Combats as List<T>,

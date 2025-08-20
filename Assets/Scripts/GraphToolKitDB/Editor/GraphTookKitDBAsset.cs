@@ -1,12 +1,12 @@
+// ----- AUTO-GENERATED RUNTIME FILE BY GraphToolGenerator.cs -----
+
 using System.Collections.Generic;
 using GraphToolKitDB.Runtime;
 using UnityEngine;
-using RangeInt = GraphToolKitDB.Runtime.RangeInt;
-using Time = GraphToolKitDB.Runtime.Time;
 
-namespace GraphToolKitDB.Editor
+namespace GraphTookKitDB.Runtime
 {
-    public class GameDatabaseAsset : ScriptableObject
+    public class GraphTookKitDBAsset : ScriptableObject
     {
         public List<Achievement> Achievements = new List<Achievement>();
         public List<AchievementState> AchievementStates = new List<AchievementState>();
@@ -27,6 +27,7 @@ namespace GraphToolKitDB.Editor
         public List<Inventory> Inventorys = new List<Inventory>();
         public List<InventoryState> InventoryStates = new List<InventoryState>();
         public List<Item> Items = new List<Item>();
+        public List<Link> Links = new List<Link>();
         public List<Location> Locations = new List<Location>();
         public List<Mission> Missions = new List<Mission>();
         public List<MissionState> MissionStates = new List<MissionState>();
@@ -34,18 +35,17 @@ namespace GraphToolKitDB.Editor
         public List<Objective> Objectives = new List<Objective>();
         public List<ObjectiveState> ObjectiveStates = new List<ObjectiveState>();
         public List<Player> Players = new List<Player>();
-        public List<Link> Links = new List<Link>();
         public List<Quest> Quests = new List<Quest>();
         public List<QuestState> QuestStates = new List<QuestState>();
-        public List<RangeFloat> RangeFloats = new List<RangeFloat>();
-        public List<RangeInt> RangeInts = new List<RangeInt>();
+        public List<RangeAsFloat> RangeAsFloats = new List<RangeAsFloat>();
+        public List<RangeAsInt> RangeAsInts = new List<RangeAsInt>();
         public List<Reward> Rewards = new List<Reward>();
         public List<Skill> Skills = new List<Skill>();
         public List<SkillState> SkillStates = new List<SkillState>();
         public List<Stat> Stats = new List<Stat>();
         public List<StatState> StatStates = new List<StatState>();
         public List<Tag> Tags = new List<Tag>();
-        public List<Time> Times = new List<Time>();
         public List<TimeState> TimeStates = new List<TimeState>();
+        public List<TimeTick> TimeTicks = new List<TimeTick>();
     }
 }
