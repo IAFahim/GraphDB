@@ -345,10 +345,7 @@ namespace GraphTookKitDB.Runtime
 
             for (int i = 0; i < edges.Length; i++)
             {
-                if (edges[i].TargetType == targetType)
-                {
-                    results.Add(db.GetEntity<T>(edges[i].TargetId));
-                }
+                if (edges[i].TargetType == targetType) results.Add(db.GetEntity<T>(edges[i].TargetId));
             }
         }
 
@@ -509,7 +506,7 @@ namespace GraphTookKitDB.Runtime
 
                     // Example 2: Get all connected items
                     var playerItems = new NativeList<Item>(16, Allocator.Temp);
-                    db.GetLinkedEntities(player.ID, EntityType.Item, ref playerItems);
+                    db.GetLinkedEntities(player.Id, EntityType.Item, ref playerItems);
 
                     // Example 3: Check path existence
                     if (db.Players.Length > 1)
@@ -519,7 +516,7 @@ namespace GraphTookKitDB.Runtime
 
                     // Example 4: Multi-hop search
                     var nearbyLocations = new NativeHashSet<Location>(32, Allocator.Temp);
-                    db.GetEntitiesWithinHops(player.ID, 3, EntityType.Location, ref nearbyLocations);
+                    db.GetEntitiesWithinHops(player.Id, 3, EntityType.Location, ref nearbyLocations);
 
                     // Cleanup
                     playerItems.Dispose();
