@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e74a0e7b16445babd0fdc16e36dcd91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GraphToolKit.Runtime::GraphTookKitDB.Runtime.GraphDatabaseComponentAuthoring
-  sourceAsset: {fileID: -8547020995993831786, guid: d92dcff9e41a399ed83ca1697dd201b3, type: 3}
+  SourceAsset: {fileID: -8547020995993831786, guid: d92dcff9e41a399ed83ca1697dd201b3, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,22 +1,24 @@
+// ----- AUTO-GENERATED ECS AUTHORING + BAKER BY GraphToolGenerator.cs -----
+
 using Unity.Entities;
 using UnityEngine;
+using GraphTookKitDB.Runtime.ECS;
 
-namespace GraphTookKitDB.Runtime
+namespace GraphTookKitDB.Runtime.ECS
 {
-    public class GraphDatabaseComponentAuthoring : MonoBehaviour
+    public sealed class GDBAuthoring : MonoBehaviour
     {
-        public GDBAsset sourceAsset;
+        public GDBAsset SourceAsset;
+    }
 
-        public class GraphDatabaseComponentBaker : Baker<GraphDatabaseComponentAuthoring>
+    public sealed class GDBBaker : Baker<GDBAuthoring>
+    {
+        public override void Bake(GDBAuthoring authoring)
         {
-            public override void Bake(GraphDatabaseComponentAuthoring authoring)
-            {
-                var entity = GetEntity(TransformUsageFlags.None);
-                AddComponent(entity, new GraphDatabaseComponent
-                {
-                    BlobAssetRef = authoring.sourceAsset.CreateBlobAsset()
-                });
-            }
+            if (authoring.SourceAsset == null) return;
+            var blob = authoring.SourceAsset.CreateBlobAsset();
+            var entity = GetEntity(TransformUsageFlags.None);
+            AddComponent(entity, new GDBComponent { Blob = blob });
         }
     }
 }
