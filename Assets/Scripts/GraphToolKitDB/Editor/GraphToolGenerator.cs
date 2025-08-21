@@ -1,4 +1,5 @@
 // FILE: GraphToolGenerator.cs
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using GraphToolKitDB.Runtime;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -77,8 +79,11 @@ public class GraphToolGenerator : EditorWindow
     private void DrawHeader()
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        EditorGUILayout.LabelField("Graph Tool Generator", new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter });
-        EditorGUILayout.HelpBox("This tool generates a complete, link-aware Unity GraphToolKit tool from a MonoBehaviour data container.", MessageType.Info);
+        EditorGUILayout.LabelField("Graph Tool Generator",
+            new GUIStyle(EditorStyles.largeLabel) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter });
+        EditorGUILayout.HelpBox(
+            "This tool generates a complete, link-aware Unity GraphToolKit tool from a MonoBehaviour data container.",
+            MessageType.Info);
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space();
     }
@@ -89,14 +94,21 @@ public class GraphToolGenerator : EditorWindow
         EditorGUILayout.BeginVertical("box");
 
         EditorGUI.BeginChangeCheck();
-        graphName = EditorGUILayout.TextField(new GUIContent("Graph Name", "The base name for generated classes and the asset extension."), graphName);
+        graphName = EditorGUILayout.TextField(
+            new GUIContent("Graph Name", "The base name for generated classes and the asset extension."), graphName);
         EditorGUILayout.LabelField("File Extension", graphName.ToLowerInvariant().Replace(" ", ""));
-        
-        targetMonoBehaviourScript = (MonoScript)EditorGUILayout.ObjectField(new GUIContent("Target Script", "The script containing your data lists (e.g., GameDatabase.cs)."), targetMonoBehaviourScript, typeof(MonoScript), false);
-        
+
+        targetMonoBehaviourScript = (MonoScript)EditorGUILayout.ObjectField(
+            new GUIContent("Target Script", "The script containing your data lists (e.g., GameDatabase.cs)."),
+            targetMonoBehaviourScript, typeof(MonoScript), false);
+
         EditorGUILayout.LabelField("Namespaces", EditorStyles.boldLabel);
-        runtimeNamespace = EditorGUILayout.TextField(new GUIContent("Runtime Namespace", "Namespace for the runtime asset script."), runtimeNamespace);
-        editorNamespace = EditorGUILayout.TextField(new GUIContent("Editor Namespace", "Namespace for the editor-only scripts."), editorNamespace);
+        runtimeNamespace =
+            EditorGUILayout.TextField(new GUIContent("Runtime Namespace", "Namespace for the runtime asset script."),
+                runtimeNamespace);
+        editorNamespace =
+            EditorGUILayout.TextField(new GUIContent("Editor Namespace", "Namespace for the editor-only scripts."),
+                editorNamespace);
 
         EditorGUILayout.LabelField("Export Paths", EditorStyles.boldLabel);
         runtimePath = DrawPathSelector("Runtime Path", "Folder for runtime scripts (Asset, EntityType).", runtimePath);
@@ -114,18 +126,20 @@ public class GraphToolGenerator : EditorWindow
                 AssetDatabase.TryGetGUIDAndLocalFileIdentifier(targetMonoBehaviourScript, out string guid, out long _);
                 EditorPrefs.SetString(PREFS_TARGET_SCRIPT_GUID, guid);
             }
+
             FindDiscoverableTypes();
         }
 
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space();
     }
-    
+
     private string DrawPathSelector(string label, string tooltip, string currentPath)
     {
         EditorGUILayout.BeginHorizontal();
         string newPath = EditorGUILayout.TextField(new GUIContent(label, tooltip), currentPath);
-        if (GUILayout.Button(new GUIContent(folderIcon, $"Browse for {label}"), GUILayout.Width(30), GUILayout.Height(20)))
+        if (GUILayout.Button(new GUIContent(folderIcon, $"Browse for {label}"), GUILayout.Width(30),
+                GUILayout.Height(20)))
         {
             string absolutePath = EditorUtility.OpenFolderPanel($"Select {label}", "Assets", "");
             if (!string.IsNullOrEmpty(absolutePath) && absolutePath.StartsWith(Application.dataPath))
@@ -133,6 +147,7 @@ public class GraphToolGenerator : EditorWindow
                 newPath = "Assets" + absolutePath.Substring(Application.dataPath.Length);
             }
         }
+
         EditorGUILayout.EndHorizontal();
         return newPath;
     }
@@ -140,7 +155,8 @@ public class GraphToolGenerator : EditorWindow
     private void DrawDiscoveredTypes()
     {
         EditorGUILayout.LabelField("Discovered Entity Types", EditorStyles.boldLabel);
-        using (var scrollView = new EditorGUILayout.ScrollViewScope(scrollPosition, EditorStyles.helpBox, GUILayout.ExpandHeight(true)))
+        using (var scrollView =
+               new EditorGUILayout.ScrollViewScope(scrollPosition, EditorStyles.helpBox, GUILayout.ExpandHeight(true)))
         {
             scrollPosition = scrollView.scrollPosition;
             if (discoveredTypes.Any())
@@ -149,29 +165,36 @@ public class GraphToolGenerator : EditorWindow
                 {
                     bool hasEntity = typeof(IEntity).IsAssignableFrom(type);
                     EditorGUILayout.BeginHorizontal();
-                    
+
                     var icon = hasEntity ? okIcon : warningIcon;
                     var tooltip = hasEntity ? "Ready" : "Missing IEntity interface.";
                     GUILayout.Label(new GUIContent(icon, tooltip), GUILayout.Width(20), GUILayout.Height(20));
-                    
+
                     EditorGUILayout.LabelField(type.Name);
                     if (!hasEntity)
                     {
                         GUI.color = new Color(1f, 0.8f, 0.4f); // Orange-yellow
-                        if (GUILayout.Button(new GUIContent("Implement IEntity", "Click to automatically add the IEntity interface and ID property to the source file."), GUILayout.ExpandWidth(false)))
+                        if (GUILayout.Button(
+                                new GUIContent("Implement IEntity",
+                                    "Click to automatically add the IEntity interface and ID property to the source file."),
+                                GUILayout.ExpandWidth(false)))
                         {
                             AddEntityToSource(type);
                         }
+
                         GUI.color = Color.white;
                     }
+
                     EditorGUILayout.EndHorizontal();
                 }
             }
             else
             {
-                EditorGUILayout.LabelField("No entity types found. Assign a target script.", EditorStyles.centeredGreyMiniLabel);
+                EditorGUILayout.LabelField("No entity types found. Assign a target script.",
+                    EditorStyles.centeredGreyMiniLabel);
             }
         }
+
         EditorGUILayout.Space();
     }
 
@@ -179,12 +202,15 @@ public class GraphToolGenerator : EditorWindow
     {
         EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
         EditorGUILayout.BeginVertical("box");
-        
+
         bool linkTypeMissing = !discoveredTypes.Any(t => t.Name == "Link" || t.Name == "PrimaryKey");
         if (linkTypeMissing)
         {
             EditorGUI.BeginChangeCheck();
-            addLinkStruct = EditorGUILayout.Toggle(new GUIContent("Generate Link Struct", "Generates a 'Link' struct if one is not found in your target script."), addLinkStruct);
+            addLinkStruct =
+                EditorGUILayout.Toggle(
+                    new GUIContent("Generate Link Struct",
+                        "Generates a 'Link' struct if one is not found in your target script."), addLinkStruct);
             if (EditorGUI.EndChangeCheck())
             {
                 EditorPrefs.SetBool(PREFS_ADD_LINK_STRUCT, addLinkStruct);
@@ -192,10 +218,13 @@ public class GraphToolGenerator : EditorWindow
         }
 
         EditorGUI.BeginDisabledGroup(!discoveredTypes.Any() || targetMonoBehaviourScript == null);
-        if (GUILayout.Button(new GUIContent("Generate All Scripts", "Generates all necessary scripts and saves them to the specified paths."), GUILayout.Height(40)))
+        if (GUILayout.Button(
+                new GUIContent("Generate All Scripts",
+                    "Generates all necessary scripts and saves them to the specified paths."), GUILayout.Height(40)))
         {
             GenerateAndExportFiles();
         }
+
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndVertical();
     }
@@ -217,6 +246,7 @@ public class GraphToolGenerator : EditorWindow
                 discoveredTypes.Add(entityType);
             }
         }
+
         discoveredTypes = discoveredTypes.Distinct().OrderBy(t => t.Name).ToList();
     }
 
@@ -249,12 +279,15 @@ public class GraphToolGenerator : EditorWindow
             File.WriteAllText(importerFilePath, importerCode);
 
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("Success", $"Successfully generated and saved scripts:\n\n- {entityTypePath}\n- {runtimeFilePath}\n- {editorFilePath}\n- {importerFilePath}", "OK");
+            EditorUtility.DisplayDialog("Success",
+                $"Successfully generated and saved scripts:\n\n- {entityTypePath}\n- {runtimeFilePath}\n- {editorFilePath}\n- {importerFilePath}",
+                "OK");
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to write generated files: {e}");
-            EditorUtility.DisplayDialog("Error", "Failed to write generated files. Check the console for details.", "OK");
+            EditorUtility.DisplayDialog("Error", "Failed to write generated files. Check the console for details.",
+                "OK");
         }
     }
 
@@ -273,6 +306,7 @@ public class GraphToolGenerator : EditorWindow
         {
             builder.AppendLine($"        {type.Name} = {idCounter++},");
         }
+
         builder.AppendLine("    }");
         builder.AppendLine("}");
         return builder.ToString();
@@ -296,8 +330,9 @@ public class GraphToolGenerator : EditorWindow
             string listName = type.Name == "Link" ? "Links" : SimplePluralize(type.Name);
             builder.AppendLine($"        public List<{type.Name}> {listName} = new List<{type.Name}>();");
         }
+
         builder.AppendLine("    }");
-        
+
         bool linkTypeMissing = !discoveredTypes.Any(t => t.Name == "Link" || t.Name == "PrimaryKey");
         if (linkTypeMissing && addLinkStruct)
         {
@@ -314,7 +349,7 @@ public class GraphToolGenerator : EditorWindow
             builder.AppendLine("        public ushort LinkTypeID;");
             builder.AppendLine("    }");
         }
-        
+
         builder.AppendLine("}");
 
         return builder.ToString();
@@ -350,10 +385,13 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine($"    public class {graphClassName} : Graph");
         builder.AppendLine("    {");
         builder.AppendLine("        [SerializeField]");
-        builder.AppendLine("        private SerializableDictionary<Type, int> nodeIdCounters = new SerializableDictionary<Type, int>();");
+        builder.AppendLine(
+            "        private SerializableDictionary<Type, int> nodeIdCounters = new SerializableDictionary<Type, int>();");
         builder.AppendLine();
         builder.AppendLine($"        [MenuItem(\"Assets/Create/{graphName} Graph\")]");
-        builder.AppendLine("        private static void CreateAssetFile() => GraphDatabase.PromptInProjectBrowserToCreateNewAsset<" + graphClassName + ">(\"New " + graphName + "\");");
+        builder.AppendLine(
+            "        private static void CreateAssetFile() => GraphDatabase.PromptInProjectBrowserToCreateNewAsset<" +
+            graphClassName + ">(\"New " + graphName + "\");");
         builder.AppendLine();
         builder.AppendLine("        public override void OnGraphChanged(GraphLogger infos)");
         builder.AppendLine("        {");
@@ -375,7 +413,8 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("            if (port.isConnected) {");
         builder.AppendLine("                var sourceNode = port.firstConnectedPort?.GetNode();");
         builder.AppendLine("                if (sourceNode is IConstantNode c) { c.TryGetValue(out T v); return v; }");
-        builder.AppendLine("                if (sourceNode is IVariableNode vn) { vn.variable.TryGetDefaultValue(out T v); return v; }");
+        builder.AppendLine(
+            "                if (sourceNode is IVariableNode vn) { vn.variable.TryGetDefaultValue(out T v); return v; }");
         builder.AppendLine("            } else { port.TryGetValue(out T v); return v; }");
         builder.AppendLine("            return default;");
         builder.AppendLine("        }");
@@ -390,6 +429,7 @@ public class GraphToolGenerator : EditorWindow
             GenerateNodeClassForType(builder, type);
             builder.AppendLine();
         }
+
         builder.AppendLine("    #endregion");
         builder.AppendLine();
         builder.AppendLine(GetEditorHelperCode());
@@ -425,40 +465,49 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("    {");
         builder.AppendLine("        public override void OnImportAsset(AssetImportContext ctx)");
         builder.AppendLine("        {");
-        builder.AppendLine($"            var graph = GraphDatabase.LoadGraphForImporter<{graphClassName}>(ctx.assetPath);");
+        builder.AppendLine(
+            $"            var graph = GraphDatabase.LoadGraphForImporter<{graphClassName}>(ctx.assetPath);");
         builder.AppendLine("            if (graph == null) return;");
         builder.AppendLine();
         builder.AppendLine($"            var runtimeAsset = ScriptableObject.CreateInstance<{assetClassName}>();");
         builder.AppendLine("            var nodeToIdMap = new Dictionary<INode, int>();");
         builder.AppendLine();
-        builder.AppendLine("            // --- PASS 1: Create all data entries and map nodes to their index-based ID ---");
+        builder.AppendLine(
+            "            // --- PASS 1: Create all data entries and map nodes to their index-based ID ---");
 
         foreach (var type in discoveredTypes.Where(t => t.Name != "Link" && t.Name != "PrimaryKey"))
         {
             string nodeClassName = $"{type.Name}DefinitionNode";
             string pluralName = SimplePluralize(type.Name);
-            
-            builder.AppendLine($"            var {type.Name.ToLower()}Nodes = graph.GetNodes().OfType<{nodeClassName}>().ToList();");
+
+            builder.AppendLine(
+                $"            var {type.Name.ToLower()}Nodes = graph.GetNodes().OfType<{nodeClassName}>().ToList();");
             builder.AppendLine($"            for(int i = 0; i < {type.Name.ToLower()}Nodes.Count; i++)");
             builder.AppendLine("            {");
             builder.AppendLine($"                var node = {type.Name.ToLower()}Nodes[i];");
             builder.AppendLine($"                var data = new {type.Name}();");
-            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(f => !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) && !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(f =>
+                         !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) &&
+                         !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
             {
                 string portConst = $"{nodeClassName}.Port{ToPascalCase(field.Name)}";
-                builder.AppendLine($"                data.{field.Name} = {graphClassName}.GetPortValue<{GetCSharpTypeName(field.FieldType)}>(node.GetInputPortByName({portConst}));");
+                builder.AppendLine(
+                    $"                data.{field.Name} = {graphClassName}.GetPortValue<{GetCSharpTypeName(field.FieldType)}>(node.GetInputPortByName({portConst}));");
             }
+
             builder.AppendLine("                data.ID = i;");
             builder.AppendLine($"                runtimeAsset.{pluralName}.Add(data);");
             builder.AppendLine("                nodeToIdMap[node] = i;");
             builder.AppendLine("            }");
         }
+
         builder.AppendLine();
         builder.AppendLine("            // --- PASS 2: Create links by traversing graph connections ---");
         builder.AppendLine("            int linkId = 0;");
         builder.AppendLine("            foreach (var sourceNode in graph.GetNodes())");
         builder.AppendLine("            {");
-        builder.AppendLine("                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == \"OutputLink\");");
+        builder.AppendLine(
+            "                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == \"OutputLink\");");
         builder.AppendLine("                if (outputPort == null || !outputPort.isConnected) continue;");
         builder.AppendLine("                if (!nodeToIdMap.TryGetValue(sourceNode, out int sourceId)) continue;");
         builder.AppendLine();
@@ -467,7 +516,8 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine();
         builder.AppendLine("                var connectedPorts = new List<IPort>();");
         builder.AppendLine("                outputPort.GetConnectedPorts(connectedPorts);");
-        builder.AppendLine("                foreach (var connectedPort in connectedPorts.Where(p => p.name == \"InputLink\"))");
+        builder.AppendLine(
+            "                foreach (var connectedPort in connectedPorts.Where(p => p.name == \"InputLink\"))");
         builder.AppendLine("                {");
         builder.AppendLine("                    var targetNode = connectedPort.GetNode();");
         builder.AppendLine("                    if (!nodeToIdMap.TryGetValue(targetNode, out int targetId)) continue;");
@@ -475,7 +525,8 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("                    var targetDataType = GetNodeType(targetNode);");
         builder.AppendLine("                    if (targetDataType == null) continue;");
         builder.AppendLine();
-        builder.AppendLine("                    var link = new Link { ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId };");
+        builder.AppendLine(
+            "                    var link = new Link { ID = linkId++, SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name), SourceID = sourceId, TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name), TargetID = targetId };");
         builder.AppendLine("                    runtimeAsset.Links.Add(link);");
         builder.AppendLine("                }");
         builder.AppendLine("            }");
@@ -490,6 +541,7 @@ public class GraphToolGenerator : EditorWindow
         {
             builder.AppendLine($"            if (node is {type.Name}DefinitionNode) return typeof({type.Name});");
         }
+
         builder.AppendLine("            return null;");
         builder.AppendLine("        }");
         builder.AppendLine("    }");
@@ -515,24 +567,34 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine();
         builder.AppendLine("        public const string PortInputLink = \"InputLink\";");
         builder.AppendLine("        public const string PortOutputLink = \"OutputLink\";");
-        foreach (var field in fields.Where(f => !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) && !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
+        foreach (var field in fields.Where(f =>
+                     !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) &&
+                     !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
         {
-            builder.AppendLine($"        public const string Port{ToPascalCase(field.Name)} = \"{ToPascalCase(field.Name)}\";");
+            builder.AppendLine(
+                $"        public const string Port{ToPascalCase(field.Name)} = \"{ToPascalCase(field.Name)}\";");
         }
+
         builder.AppendLine();
         builder.AppendLine("        protected override void OnDefinePorts(IPortDefinitionContext context)");
         builder.AppendLine("        {");
-        builder.AppendLine("            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName(\"In\").Build();");
-        builder.AppendLine("            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName(\"Out\").Build();");
+        builder.AppendLine(
+            "            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName(\"In\").Build();");
+        builder.AppendLine(
+            "            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName(\"Out\").Build();");
         builder.AppendLine();
-        foreach (var field in fields.Where(f => !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) && !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
+        foreach (var field in fields.Where(f =>
+                     !f.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) &&
+                     !f.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
         {
-            builder.AppendLine($"            context.AddInputPort<{GetCSharpTypeName(field.FieldType)}>(Port{ToPascalCase(field.Name)}).WithDisplayName(\"{SplitPascalCase(field.Name)}\").Build();");
+            builder.AppendLine(
+                $"            context.AddInputPort<{GetCSharpTypeName(field.FieldType)}>(Port{ToPascalCase(field.Name)}).WithDisplayName(\"{SplitPascalCase(field.Name)}\").Build();");
         }
+
         builder.AppendLine("        }");
         builder.AppendLine("    }");
     }
-    
+
     private HashSet<string> GetRequiredUsings()
     {
         var usings = new HashSet<string> { "System", "System.Collections.Generic", "UnityEngine" };
@@ -540,6 +602,7 @@ public class GraphToolGenerator : EditorWindow
         {
             usings.Add(targetMonoBehaviourScript.GetClass().Namespace);
         }
+
         foreach (var type in discoveredTypes)
         {
             if (!string.IsNullOrEmpty(type.Namespace)) usings.Add(type.Namespace);
@@ -548,6 +611,7 @@ public class GraphToolGenerator : EditorWindow
                 if (!string.IsNullOrEmpty(field.FieldType.Namespace)) usings.Add(field.FieldType.Namespace);
             }
         }
+
         return usings;
     }
 
@@ -560,7 +624,8 @@ public class GraphToolGenerator : EditorWindow
         Match typeMatch = Regex.Match(content, typePattern);
         if (!typeMatch.Success) return;
 
-        string existingInterfaces = Regex.Match(content.Substring(typeMatch.Index), @":\s*([^{]+)").Groups[1].Value.Trim();
+        string existingInterfaces =
+            Regex.Match(content.Substring(typeMatch.Index), @":\s*([^{]+)").Groups[1].Value.Trim();
         string newContent;
 
         if (string.IsNullOrEmpty(existingInterfaces))
@@ -582,7 +647,8 @@ public class GraphToolGenerator : EditorWindow
             Match nsMatch = Regex.Match(newContent, namespacePattern);
             if (nsMatch.Success)
             {
-                newContent = newContent.Insert(nsMatch.Groups[1].Index + nsMatch.Groups[1].Length + 1, "\n    public interface IEntity { public int ID { get; set; } }\n");
+                newContent = newContent.Insert(nsMatch.Groups[1].Index + nsMatch.Groups[1].Length + 1,
+                    "\n    public interface IEntity { public int ID { get; set; } }\n");
             }
             else
             {
@@ -592,7 +658,8 @@ public class GraphToolGenerator : EditorWindow
 
         File.WriteAllText(path, newContent);
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Success", $"Successfully added IEntity to {type.Name} in {Path.GetFileName(path)}.", "OK");
+        EditorUtility.DisplayDialog("Success",
+            $"Successfully added IEntity to {type.Name} in {Path.GetFileName(path)}.", "OK");
         FindDiscoverableTypes();
     }
 
@@ -603,13 +670,21 @@ public class GraphToolGenerator : EditorWindow
             { typeof(int), "int" }, { typeof(string), "string" }, { typeof(float), "float" },
             { typeof(bool), "bool" }, { typeof(double), "double" }, { typeof(long), "long" },
             { typeof(short), "short" }, { typeof(byte), "byte" }, { typeof(uint), "uint" },
-            { typeof(ulong), "ulong" }, { typeof(ushort), "ushort" }, { typeof(sbyte), "sbyte" }
+            { typeof(ulong), "ulong" }, { typeof(ushort), "ushort" }, { typeof(sbyte), "sbyte" },
+            { typeof(FixedString32Bytes), "string" }, { typeof(FixedString64Bytes), "string" },
+            { typeof(FixedString128Bytes), "string" }, { typeof(FixedString512Bytes), "string" },
+            { typeof(FixedString4096Bytes), "string" }
         };
         return typeMap.TryGetValue(type, out var name) ? name : type.FullName.Replace('+', '.');
     }
 
-    private static string ToPascalCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToUpperInvariant(input[0]) + input.Substring(1);
-    private static string SplitPascalCase(string input) => string.IsNullOrEmpty(input) ? input : ToPascalCase(Regex.Replace(input, "(?<!^)([A-Z])", " $1"));
+    private static string ToPascalCase(string input) =>
+        string.IsNullOrEmpty(input) ? input : char.ToUpperInvariant(input[0]) + input.Substring(1);
+
+    private static string SplitPascalCase(string input) => string.IsNullOrEmpty(input)
+        ? input
+        : ToPascalCase(Regex.Replace(input, "(?<!^)([A-Z])", " $1"));
+
     private static string SimplePluralize(string name) => name.EndsWith("s") ? name + "es" : name + "s";
 
     private static string GetSerializableDictionaryCode()
@@ -676,7 +751,7 @@ public class GraphToolGenerator : EditorWindow
     }
 ";
     }
-    
+
     private static string GetEditorHelperCode()
     {
         return @"
