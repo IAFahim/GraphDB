@@ -17,13 +17,12 @@ using GraphTookKitDB.Runtime;
 
 namespace GraphTookKitDB.Editor
 {
-
     [Serializable]
     public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         [SerializeField] private List<TKey> m_Keys = new List<TKey>();
         [SerializeField] private List<TValue> m_Values = new List<TValue>();
-        
+
         private Dictionary<TKey, TValue> m_Dictionary;
         private bool m_IsDeserialized;
 
@@ -39,6 +38,7 @@ namespace GraphTookKitDB.Editor
                         m_Dictionary[m_Keys[i]] = m_Values[i];
                     }
                 }
+
                 m_IsDeserialized = true;
             }
         }
@@ -60,27 +60,122 @@ namespace GraphTookKitDB.Editor
             m_IsDeserialized = false;
         }
 
-        public TValue this[TKey key] { get { EnsureDeserialized(); return m_Dictionary[key]; } set { EnsureDeserialized(); m_Dictionary[key] = value; } }
-        public ICollection<TKey> Keys { get { EnsureDeserialized(); return m_Dictionary.Keys; } }
-        public ICollection<TValue> Values { get { EnsureDeserialized(); return m_Dictionary.Values; } }
-        public int Count { get { EnsureDeserialized(); return m_Dictionary.Count; } }
+        public TValue this[TKey key]
+        {
+            get
+            {
+                EnsureDeserialized();
+                return m_Dictionary[key];
+            }
+            set
+            {
+                EnsureDeserialized();
+                m_Dictionary[key] = value;
+            }
+        }
+
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                EnsureDeserialized();
+                return m_Dictionary.Keys;
+            }
+        }
+
+        public ICollection<TValue> Values
+        {
+            get
+            {
+                EnsureDeserialized();
+                return m_Dictionary.Values;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                EnsureDeserialized();
+                return m_Dictionary.Count;
+            }
+        }
+
         public bool IsReadOnly => ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).IsReadOnly;
-        public void Add(TKey key, TValue value) { EnsureDeserialized(); m_Dictionary.Add(key, value); }
-        public void Add(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Add(item); }
-        public void Clear() { EnsureDeserialized(); m_Dictionary.Clear(); }
-        public bool Contains(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); return m_Dictionary.Contains(item); }
-        public bool ContainsKey(TKey key) { EnsureDeserialized(); return m_Dictionary.ContainsKey(key); }
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) { EnsureDeserialized(); ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).CopyTo(array, arrayIndex); }
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() { EnsureDeserialized(); return m_Dictionary.GetEnumerator(); }
-        public bool Remove(TKey key) { EnsureDeserialized(); return m_Dictionary.Remove(key); }
-        public bool Remove(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); return ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Remove(item); }
-        public bool TryGetValue(TKey key, out TValue value) { EnsureDeserialized(); return m_Dictionary.TryGetValue(key, out value); }
-        IEnumerator IEnumerable.GetEnumerator() { EnsureDeserialized(); return m_Dictionary.GetEnumerator(); }
+
+        public void Add(TKey key, TValue value)
+        {
+            EnsureDeserialized();
+            m_Dictionary.Add(key, value);
+        }
+
+        public void Add(KeyValuePair<TKey, TValue> item)
+        {
+            EnsureDeserialized();
+            ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Add(item);
+        }
+
+        public void Clear()
+        {
+            EnsureDeserialized();
+            m_Dictionary.Clear();
+        }
+
+        public bool Contains(KeyValuePair<TKey, TValue> item)
+        {
+            EnsureDeserialized();
+            return m_Dictionary.Contains(item);
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            EnsureDeserialized();
+            return m_Dictionary.ContainsKey(key);
+        }
+
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            EnsureDeserialized();
+            ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).CopyTo(array, arrayIndex);
+        }
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            EnsureDeserialized();
+            return m_Dictionary.GetEnumerator();
+        }
+
+        public bool Remove(TKey key)
+        {
+            EnsureDeserialized();
+            return m_Dictionary.Remove(key);
+        }
+
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            EnsureDeserialized();
+            return ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Remove(item);
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            EnsureDeserialized();
+            return m_Dictionary.TryGetValue(key, out value);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            EnsureDeserialized();
+            return m_Dictionary.GetEnumerator();
+        }
     }
 
-    public class Linkable {}
+    public class Linkable
+    {
+    }
 
     #region Graph Definition
+
     [Graph("gdb")]
     [Serializable]
     public class GDBGraph : Graph
@@ -89,7 +184,8 @@ namespace GraphTookKitDB.Editor
         private SerializableDictionary<Type, int> nodeIdCounters = new SerializableDictionary<Type, int>();
 
         [MenuItem("Assets/Create/GDB Graph")]
-        private static void CreateAssetFile() => GraphDatabase.PromptInProjectBrowserToCreateNewAsset<GDBGraph>("New GDB");
+        private static void CreateAssetFile() =>
+            GraphDatabase.PromptInProjectBrowserToCreateNewAsset<GDBGraph>("New GDB");
 
         public override void OnGraphChanged(GraphLogger infos)
         {
@@ -107,26 +203,54 @@ namespace GraphTookKitDB.Editor
             }
         }
 
-        public static T GetPortValue<T>(IPort port) {
-            if (port.isConnected) {
+        public static T GetPortValue<T>(IPort port)
+        {
+            if (port.isConnected)
+            {
                 var sourceNode = port.firstConnectedPort?.GetNode();
-                if (sourceNode is IConstantNode c) { c.TryGetValue(out T v); return v; }
-                if (sourceNode is IVariableNode vn) { vn.variable.TryGetDefaultValue(out T v); return v; }
-            } else { port.TryGetValue(out T v); return v; }
+                if (sourceNode is IConstantNode c)
+                {
+                    c.TryGetValue(out T v);
+                    return v;
+                }
+
+                if (sourceNode is IVariableNode vn)
+                {
+                    vn.variable.TryGetDefaultValue(out T v);
+                    return v;
+                }
+            }
+            else
+            {
+                port.TryGetValue(out T v);
+                return v;
+            }
+
             return default;
         }
     }
+
     #endregion
 
     #region Node Definitions
-    public interface IDataNode : INode { int NodeID { get; set; } }
+
+    public interface IDataNode : INode
+    {
+        int NodeID { get; set; }
+    }
 
     [Serializable]
-    public class AchievementDefinitionNode : Node, IDataNode
+    public class AchievementDefinitionNode : ContextNode, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
+        
+        public static EntityType EntityType => EntityType.Achievement;
 
         public new string Title => $"{m_NodeID} - Achievement";
 
@@ -149,12 +273,28 @@ namespace GraphTookKitDB.Editor
         }
     }
 
+    [UseWithContext(typeof(Node))]
+    [Serializable]
+    public class TypeIDScriptableBlockNode : BlockNode
+    {
+        const string LinkType = "LinkType";
+        protected override void OnDefineOptions(INodeOptionDefinition context)
+        {
+            context.AddNodeOption<LinkTypeSo>(LinkType, attributes: new Attribute[] { new DelayedAttribute() });
+        }
+    }
+
+
     [Serializable]
     public class AchievementStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Achievement State";
 
@@ -176,9 +316,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class AIDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - A I";
 
@@ -204,9 +348,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class AIStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - A I State";
 
@@ -228,9 +376,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class CharacterDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Character";
 
@@ -256,9 +408,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class CharacterStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Character State";
 
@@ -282,9 +438,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class CombatDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Combat";
 
@@ -310,9 +470,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class CombatStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Combat State";
 
@@ -334,9 +498,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class DescriptionDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Description";
 
@@ -358,9 +526,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class EconomyDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Economy";
 
@@ -386,9 +558,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class EconomyStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Economy State";
 
@@ -410,9 +586,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class EffectDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Effect";
 
@@ -438,9 +618,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class EffectStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Effect State";
 
@@ -462,9 +646,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class EquipmentDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Equipment";
 
@@ -490,9 +678,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class GuildDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Guild";
 
@@ -518,9 +710,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class GuildStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Guild State";
 
@@ -542,9 +738,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class InventoryDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Inventory";
 
@@ -568,9 +768,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class InventoryStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Inventory State";
 
@@ -592,9 +796,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class ItemDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Item";
 
@@ -622,9 +830,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class LocationDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Location";
 
@@ -650,9 +862,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class MissionDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Mission";
 
@@ -676,9 +892,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class MissionStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Mission State";
 
@@ -702,9 +922,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class NameDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Name";
 
@@ -726,9 +950,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class ObjectiveDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Objective";
 
@@ -752,9 +980,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class ObjectiveStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Objective State";
 
@@ -776,9 +1008,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class PlayerDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Player";
 
@@ -804,9 +1040,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class QuestDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Quest";
 
@@ -830,9 +1070,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class QuestStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Quest State";
 
@@ -854,9 +1098,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class RangeAsFloatDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Range As Float";
 
@@ -880,9 +1128,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class RangeAsIntDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Range As Int";
 
@@ -906,9 +1158,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class RewardDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Reward";
 
@@ -934,9 +1190,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class SkillDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Skill";
 
@@ -962,9 +1222,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class SkillStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Skill State";
 
@@ -988,9 +1252,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class StatDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Stat";
 
@@ -1016,9 +1284,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class StatStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Stat State";
 
@@ -1040,9 +1312,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class TagDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Tag";
 
@@ -1064,9 +1340,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class TimeStateDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Time State";
 
@@ -1090,9 +1370,13 @@ namespace GraphTookKitDB.Editor
     [Serializable]
     public class TimeTickDefinitionNode : Node, IDataNode
     {
-        [SerializeField]
-        private int m_NodeID;
-        public int NodeID { get => m_NodeID; set => m_NodeID = value; }
+        [SerializeField] private int m_NodeID;
+
+        public int NodeID
+        {
+            get => m_NodeID;
+            set => m_NodeID = value;
+        }
 
         public new string Title => $"{m_NodeID} - Time Tick";
 
@@ -1120,8 +1404,12 @@ namespace GraphTookKitDB.Editor
 
     internal static class EditorGraphHelper
     {
-        public static string ToPascalCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToUpperInvariant(input[0]) + input.Substring(1);
-        public static string SplitPascalCase(string input) => string.IsNullOrEmpty(input) ? input : ToPascalCase(Regex.Replace(input, "(?<!^)([A-Z])", " $1"));
-    }
+        public static string ToPascalCase(string input) => string.IsNullOrEmpty(input)
+            ? input
+            : char.ToUpperInvariant(input[0]) + input.Substring(1);
 
+        public static string SplitPascalCase(string input) => string.IsNullOrEmpty(input)
+            ? input
+            : ToPascalCase(Regex.Replace(input, "(?<!^)([A-Z])", " $1"));
+    }
 }
