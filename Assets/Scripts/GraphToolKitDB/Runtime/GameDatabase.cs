@@ -201,7 +201,7 @@ namespace GraphToolKitDB.Runtime
     }
 
     [Serializable]
-    public struct Location : IEntity
+    public struct Location : IEntity, IEquatable<Location>
     {
         public int Id;
         public int ID
@@ -213,6 +213,10 @@ namespace GraphToolKitDB.Runtime
         public Vector3 Scale;
         public Quaternion Rotation;
         public int ParentZoneID;
+
+        public bool Equals(Location other) => Id == other.Id;
+        public override bool Equals(object obj) => obj is Location other && Equals(other);
+        public override int GetHashCode() => Id;
     }
 
     [Serializable]

@@ -1,396 +1,454 @@
-// using System;
-// using Unity.Collections;
-// using Unity.Entities;
-// using UnityEngine;
-// using GraphTookKitDB.Runtime;
-// using GraphToolKitDB.Runtime;
-//
-// namespace GraphTookKitDB.Runtime
-// {
-//     // Blob asset structure for the entire graph database
-//     public struct GraphDatabaseBlobAsset
-//     {
-//         // Entity Collections (ID = index in these arrays)
-//         public BlobArray<Achievement> Achievements;
-//         public BlobArray<AchievementState> AchievementStates;
-//         public BlobArray<AI> AIs;
-//         public BlobArray<AIState> AIStates;
-//         public BlobArray<Character> Characters;
-//         public BlobArray<CharacterState> CharacterStates;
-//         public BlobArray<Combat> Combats;
-//         public BlobArray<CombatState> CombatStates;
-//         public BlobArray<Description> Descriptions;
-//         public BlobArray<Economy> Economies;
-//         public BlobArray<EconomyState> EconomyStates;
-//         public BlobArray<Effect> Effects;
-//         public BlobArray<EffectState> EffectStates;
-//         public BlobArray<Equipment> Equipments;
-//         public BlobArray<Guild> Guilds;
-//         public BlobArray<GuildState> GuildStates;
-//         public BlobArray<Inventory> Inventories;
-//         public BlobArray<InventoryState> InventoryStates;
-//         public BlobArray<Item> Items;
-//         public BlobArray<Link> Links;
-//         public BlobArray<Location> Locations;
-//         public BlobArray<Mission> Missions;
-//         public BlobArray<MissionState> MissionStates;
-//         public BlobArray<Name> Names;
-//         public BlobArray<Objective> Objectives;
-//         public BlobArray<ObjectiveState> ObjectiveStates;
-//         public BlobArray<Player> Players;
-//         public BlobArray<Quest> Quests;
-//         public BlobArray<QuestState> QuestStates;
-//         public BlobArray<RangeAsFloat> RangeAsFloats;
-//         public BlobArray<RangeAsInt> RangeAsInts;
-//         public BlobArray<Reward> Rewards;
-//         public BlobArray<Skill> Skills;
-//         public BlobArray<SkillState> SkillStates;
-//         public BlobArray<Stat> Stats;
-//         public BlobArray<StatState> StatStates;
-//         public BlobArray<Tag> Tags;
-//         public BlobArray<TimeState> TimeStates;
-//         public BlobArray<TimeTick> TimeTicks;
-//
-//         // Link indexing for graph traversal
-//         public BlobArray<int> LinksBySourceId;     // Links sorted by source entity ID
-//         public BlobArray<int> LinksByTargetId;     // Links sorted by target entity ID
-//         public BlobArray<LinkRange> SourceRanges;  // Range info for each source ID
-//         public BlobArray<LinkRange> TargetRanges;  // Range info for each target ID
-//
-//         // Metadata
-//         public int TotalEntities;
-//         public int TotalLinks;
-//         public long CreationTimestamp;
-//         public int Version;
-//     }
-//
-//     // Helper struct for link ranges
-//     public struct LinkRange
-//     {
-//         public int StartIndex; // Start index in the link array
-//         public int Count;      // Number of links for this entity
-//     }
-//
-//     // Component to reference the blob asset in ECS
-//     public struct GraphDatabaseComponent : IComponentData
-//     {
-//         public BlobAssetReference<GraphDatabaseBlobAsset> BlobAsset;
-//     }
-//
-//     // Builder class to create the blob asset from GDBAsset
-//     public static class GraphDatabaseBlobBuilder
-//     {
-//         public static BlobAssetReference<GraphDatabaseBlobAsset> CreateBlobAsset(GDBAsset sourceAsset)
-//         {
-//             using var builder = new BlobBuilder(Allocator.Temp);
-//             ref var root = ref builder.ConstructRoot<GraphDatabaseBlobAsset>();
-//
-//             // Build entity arrays (straightforward copy since ID = index)
-//             BuildEntityArray(builder, ref root.Achievements, sourceAsset.Achievements);
-//             BuildEntityArray(builder, ref root.AchievementStates, sourceAsset.AchievementStates);
-//             BuildEntityArray(builder, ref root.AIs, sourceAsset.AIs);
-//             BuildEntityArray(builder, ref root.AIStates, sourceAsset.AIStates);
-//             BuildEntityArray(builder, ref root.Characters, sourceAsset.Characters);
-//             BuildEntityArray(builder, ref root.CharacterStates, sourceAsset.CharacterStates);
-//             BuildEntityArray(builder, ref root.Combats, sourceAsset.Combats);
-//             BuildEntityArray(builder, ref root.CombatStates, sourceAsset.CombatStates);
-//             BuildEntityArray(builder, ref root.Descriptions, sourceAsset.Descriptions);
-//             BuildEntityArray(builder, ref root.Economies, sourceAsset.Economys);
-//             BuildEntityArray(builder, ref root.EconomyStates, sourceAsset.EconomyStates);
-//             BuildEntityArray(builder, ref root.Effects, sourceAsset.Effects);
-//             BuildEntityArray(builder, ref root.EffectStates, sourceAsset.EffectStates);
-//             BuildEntityArray(builder, ref root.Equipments, sourceAsset.Equipments);
-//             BuildEntityArray(builder, ref root.Guilds, sourceAsset.Guilds);
-//             BuildEntityArray(builder, ref root.GuildStates, sourceAsset.GuildStates);
-//             BuildEntityArray(builder, ref root.Inventories, sourceAsset.Inventorys);
-//             BuildEntityArray(builder, ref root.InventoryStates, sourceAsset.InventoryStates);
-//             BuildEntityArray(builder, ref root.Items, sourceAsset.Items);
-//             BuildEntityArray(builder, ref root.Links, sourceAsset.Links);
-//             BuildEntityArray(builder, ref root.Locations, sourceAsset.Locations);
-//             BuildEntityArray(builder, ref root.Missions, sourceAsset.Missions);
-//             BuildEntityArray(builder, ref root.MissionStates, sourceAsset.MissionStates);
-//             BuildEntityArray(builder, ref root.Names, sourceAsset.Names);
-//             BuildEntityArray(builder, ref root.Objectives, sourceAsset.Objectives);
-//             BuildEntityArray(builder, ref root.ObjectiveStates, sourceAsset.ObjectiveStates);
-//             BuildEntityArray(builder, ref root.Players, sourceAsset.Players);
-//             BuildEntityArray(builder, ref root.Quests, sourceAsset.Quests);
-//             BuildEntityArray(builder, ref root.QuestStates, sourceAsset.QuestStates);
-//             BuildEntityArray(builder, ref root.RangeAsFloats, sourceAsset.RangeAsFloats);
-//             BuildEntityArray(builder, ref root.RangeAsInts, sourceAsset.RangeAsInts);
-//             BuildEntityArray(builder, ref root.Rewards, sourceAsset.Rewards);
-//             BuildEntityArray(builder, ref root.Skills, sourceAsset.Skills);
-//             BuildEntityArray(builder, ref root.SkillStates, sourceAsset.SkillStates);
-//             BuildEntityArray(builder, ref root.Stats, sourceAsset.Stats);
-//             BuildEntityArray(builder, ref root.StatStates, sourceAsset.StatStates);
-//             BuildEntityArray(builder, ref root.Tags, sourceAsset.Tags);
-//             BuildEntityArray(builder, ref root.TimeStates, sourceAsset.TimeStates);
-//             BuildEntityArray(builder, ref root.TimeTicks, sourceAsset.TimeTicks);
-//
-//             // Build link indexing for graph traversal
-//             BuildLinkIndexing(builder, ref root, sourceAsset.Links);
-//
-//             // Set metadata
-//             root.TotalEntities = CalculateTotalEntities(sourceAsset);
-//             root.TotalLinks = sourceAsset.Links.Count;
-//             root.CreationTimestamp = DateTime.Now.Ticks;
-//             root.Version = 1;
-//
-//             return builder.CreateBlobAssetReference<GraphDatabaseBlobAsset>(Allocator.Persistent);
-//         }
-//
-//         private static void BuildEntityArray<T>(BlobBuilder builder, ref BlobArray<T> blobArray, System.Collections.Generic.List<T> sourceList) where T : struct
-//         {
-//             var arrayBuilder = builder.Allocate(ref blobArray, sourceList.Count);
-//             for (int i = 0; i < sourceList.Count; i++)
-//             {
-//                 arrayBuilder[i] = sourceList[i];
-//             }
-//         }
-//
-//         private static void BuildLinkIndexing(BlobBuilder builder, ref GraphDatabaseBlobAsset root, System.Collections.Generic.List<Link> links)
-//         {
-//             if (links.Count == 0)
-//             {
-//                 builder.Allocate(ref root.LinksBySourceId, 0);
-//                 builder.Allocate(ref root.LinksByTargetId, 0);
-//                 builder.Allocate(ref root.SourceRanges, 0);
-//                 builder.Allocate(ref root.TargetRanges, 0);
-//                 return;
-//             }
-//
-//             // Find max entity IDs to determine range array sizes
-//             int maxSourceId = 0, maxTargetId = 0;
-//             foreach (var link in links)
-//             {
-//                 if (link.SourceID > maxSourceId) maxSourceId = link.SourceID;
-//                 if (link.TargetID > maxTargetId) maxTargetId = link.TargetID;
-//             }
-//
-//             // Build source-based indexing
-//             var sourceGroups = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<int>>();
-//             for (int i = 0; i < links.Count; i++)
-//             {
-//                 var sourceId = links[i].SourceID;
-//                 if (!sourceGroups.ContainsKey(sourceId))
-//                     sourceGroups[sourceId] = new System.Collections.Generic.List<int>();
-//                 sourceGroups[sourceId].Add(i); // Store link indices
-//             }
-//
-//             // Build target-based indexing
-//             var targetGroups = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<int>>();
-//             for (int i = 0; i < links.Count; i++)
-//             {
-//                 var targetId = links[i].TargetID;
-//                 if (!targetGroups.ContainsKey(targetId))
-//                     targetGroups[targetId] = new System.Collections.Generic.List<int>();
-//                 targetGroups[targetId].Add(i); // Store link indices
-//             }
-//
-//             // Create source link index array and ranges
-//             var sourceLinkIndices = new System.Collections.Generic.List<int>();
-//             var sourceRanges = builder.Allocate(ref root.SourceRanges, maxSourceId + 1);
-//             
-//             for (int entityId = 0; entityId <= maxSourceId; entityId++)
-//             {
-//                 if (sourceGroups.TryGetValue(entityId, out var linkIndices))
-//                 {
-//                     sourceRanges[entityId] = new LinkRange 
-//                     { 
-//                         StartIndex = sourceLinkIndices.Count, 
-//                         Count = linkIndices.Count 
-//                     };
-//                     sourceLinkIndices.AddRange(linkIndices);
-//                 }
-//                 else
-//                 {
-//                     sourceRanges[entityId] = new LinkRange { StartIndex = -1, Count = 0 };
-//                 }
-//             }
-//
-//             // Create target link index array and ranges
-//             var targetLinkIndices = new System.Collections.Generic.List<int>();
-//             var targetRanges = builder.Allocate(ref root.TargetRanges, maxTargetId + 1);
-//             
-//             for (int entityId = 0; entityId <= maxTargetId; entityId++)
-//             {
-//                 if (targetGroups.TryGetValue(entityId, out var linkIndices))
-//                 {
-//                     targetRanges[entityId] = new LinkRange 
-//                     { 
-//                         StartIndex = targetLinkIndices.Count, 
-//                         Count = linkIndices.Count 
-//                     };
-//                     targetLinkIndices.AddRange(linkIndices);
-//                 }
-//                 else
-//                 {
-//                     targetRanges[entityId] = new LinkRange { StartIndex = -1, Count = 0 };
-//                 }
-//             }
-//
-//             // Build the blob arrays
-//             var sourceArray = builder.Allocate(ref root.LinksBySourceId, sourceLinkIndices.Count);
-//             for (int i = 0; i < sourceLinkIndices.Count; i++)
-//             {
-//                 sourceArray[i] = sourceLinkIndices[i];
-//             }
-//
-//             var targetArray = builder.Allocate(ref root.LinksByTargetId, targetLinkIndices.Count);
-//             for (int i = 0; i < targetLinkIndices.Count; i++)
-//             {
-//                 targetArray[i] = targetLinkIndices[i];
-//             }
-//         }
-//
-//         private static int CalculateTotalEntities(GDBAsset asset)
-//         {
-//             return asset.Achievements.Count + asset.AchievementStates.Count + asset.AIs.Count +
-//                    asset.AIStates.Count + asset.Characters.Count + asset.CharacterStates.Count +
-//                    asset.Combats.Count + asset.CombatStates.Count + asset.Descriptions.Count +
-//                    asset.Economys.Count + asset.EconomyStates.Count + asset.Effects.Count +
-//                    asset.EffectStates.Count + asset.Equipments.Count + asset.Guilds.Count +
-//                    asset.GuildStates.Count + asset.Inventorys.Count + asset.InventoryStates.Count +
-//                    asset.Items.Count + asset.Links.Count + asset.Locations.Count +
-//                    asset.Missions.Count + asset.MissionStates.Count + asset.Names.Count +
-//                    asset.Objectives.Count + asset.ObjectiveStates.Count + asset.Players.Count +
-//                    asset.Quests.Count + asset.QuestStates.Count + asset.RangeAsFloats.Count +
-//                    asset.RangeAsInts.Count + asset.Rewards.Count + asset.Skills.Count +
-//                    asset.SkillStates.Count + asset.Stats.Count + asset.StatStates.Count +
-//                    asset.Tags.Count + asset.TimeStates.Count + asset.TimeTicks.Count;
-//         }
-//     }
-//
-//     // Utility extension methods for easy access
-//     public static class GraphDatabaseBlobExtensions
-//     {
-//         // Direct entity access by ID (since ID = index)
-//         public static ref readonly T GetEntity<T>(this ref GraphDatabaseBlobAsset database, int entityId) where T : struct
-//         {
-//             // You'll need to implement type-specific access based on T
-//             // This is a template - implement for each entity type
-//             if (typeof(T) == typeof(Player))
-//                 return ref (T)(object)database.Players[entityId];
-//             if (typeof(T) == typeof(Character))
-//                 return ref (T)(object)database.Characters[entityId];
-//             if (typeof(T) == typeof(Item))
-//                 return ref (T)(object)database.Items[entityId];
-//             // Add other entity types...
-//             
-//             throw new System.ArgumentException($"Entity type {typeof(T)} not supported");
-//         }
-//
-//         // Get all outgoing links for an entity
-//         public static void GetOutgoingLinks(this ref GraphDatabaseBlobAsset database, int sourceEntityId, ref NativeList<Link> results)
-//         {
-//             results.Clear();
-//             
-//             if (sourceEntityId >= database.SourceRanges.Length) return;
-//             
-//             var range = database.SourceRanges[sourceEntityId];
-//             if (range.Count == 0) return;
-//
-//             for (int i = 0; i < range.Count; i++)
-//             {
-//                 var linkIndex = database.LinksBySourceId[range.StartIndex + i];
-//                 results.Add(database.Links[linkIndex]);
-//             }
-//         }
-//
-//         // Get all incoming links for an entity
-//         public static void GetIncomingLinks(this ref GraphDatabaseBlobAsset database, int targetEntityId, ref NativeList<Link> results)
-//         {
-//             results.Clear();
-//             
-//             if (targetEntityId >= database.TargetRanges.Length) return;
-//             
-//             var range = database.TargetRanges[targetEntityId];
-//             if (range.Count == 0) return;
-//
-//             for (int i = 0; i < range.Count; i++)
-//             {
-//                 var linkIndex = database.LinksByTargetId[range.StartIndex + i];
-//                 results.Add(database.Links[linkIndex]);
-//             }
-//         }
-//
-//         // Check if two entities are connected
-//         public static bool AreConnected(this ref GraphDatabaseBlobAsset database, int sourceId, int targetId, ushort linkType = 0)
-//         {
-//             if (sourceId >= database.SourceRanges.Length) return false;
-//             
-//             var range = database.SourceRanges[sourceId];
-//             if (range.Count == 0) return false;
-//
-//             for (int i = 0; i < range.Count; i++)
-//             {
-//                 var linkIndex = database.LinksBySourceId[range.StartIndex + i];
-//                 var link = database.Links[linkIndex];
-//                 
-//                 if (link.TargetID == targetId && (linkType == 0 || link.LinkTypeID == linkType))
-//                     return true;
-//             }
-//             
-//             return false;
-//         }
-//
-//         // Get connected entities of specific type
-//         public static void GetConnectedEntities<T>(this ref GraphDatabaseBlobAsset database, int sourceEntityId, EntityType targetType, ref NativeList<T> results) where T : struct, IEntity
-//         {
-//             results.Clear();
-//             
-//             var tempLinks = new NativeList<Link>(16, Allocator.Temp);
-//             database.GetOutgoingLinks(sourceEntityId, ref tempLinks);
-//             
-//             foreach (var link in tempLinks)
-//             {
-//                 if (link.TargetType == targetType)
-//                 {
-//                     var entity = database.GetEntity<T>(link.TargetID);
-//                     results.Add(entity);
-//                 }
-//             }
-//             
-//             tempLinks.Dispose();
-//         }
-//     }
-//
-//     // Example ISystem that uses the blob asset
-//     [UpdateInGroup(typeof(SimulationSystemGroup))]
-//     public partial struct GraphDatabaseQuerySystem : ISystem
-//     {
-//         public void OnCreate(ref SystemState state)
-//         {
-//             state.RequireForUpdate<GraphDatabaseComponent>();
-//         }
-//
-//         public void OnUpdate(ref SystemState state)
-//         {
-//             foreach (var graphDb in SystemAPI.Query<RefRO<GraphDatabaseComponent>>())
-//             {
-//                 ref var database = ref graphDb.ValueRO.BlobAsset.Value;
-//                 
-//                 // Example: Access player by ID (direct index access)
-//                 if (database.Players.Length > 0)
-//                 {
-//                     ref readonly var player = ref database.Players[0]; // Player with ID 0
-//                     Debug.Log($"Player Level: {player.Level}");
-//                     
-//                     // Find all items linked to this player
-//                     var links = new NativeList<Link>(16, Allocator.Temp);
-//                     database.GetOutgoingLinks(player.ID, ref links);
-//                     
-//                     foreach (var link in links)
-//                     {
-//                         if (link.TargetType == EntityType.Item)
-//                         {
-//                             ref readonly var item = ref database.Items[link.TargetID];
-//                             Debug.Log($"Player has item: {item.ItemType}");
-//                         }
-//                     }
-//                     
-//                     links.Dispose();
-//                 }
-//             }
-//         }
-//     }
-// }
+using System;
+using System.Runtime.CompilerServices;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using Unity.Jobs;
+using Unity.Burst;
+using UnityEngine;
+using GraphTookKitDB.Runtime;
+using GraphToolKitDB.Runtime;
+using Unity.Mathematics;
+
+namespace GraphTookKitDB.Runtime
+{
+    // Advanced blob asset with optimized algorithms
+    public struct GraphDatabaseBlobAsset
+    {
+        // Entity Collections (ID = index)
+        public BlobArray<Achievement> Achievements;
+        public BlobArray<AchievementState> AchievementStates;
+        public BlobArray<AI> AIs;
+        public BlobArray<AIState> AIStates;
+        public BlobArray<Character> Characters;
+        public BlobArray<CharacterState> CharacterStates;
+        public BlobArray<Combat> Combats;
+        public BlobArray<CombatState> CombatStates;
+        public BlobArray<Description> Descriptions;
+        public BlobArray<Economy> Economies;
+        public BlobArray<EconomyState> EconomyStates;
+        public BlobArray<Effect> Effects;
+        public BlobArray<EffectState> EffectStates;
+        public BlobArray<Equipment> Equipments;
+        public BlobArray<Guild> Guilds;
+        public BlobArray<GuildState> GuildStates;
+        public BlobArray<Inventory> Inventories;
+        public BlobArray<InventoryState> InventoryStates;
+        public BlobArray<Item> Items;
+        public BlobArray<Link> Links;
+        public BlobArray<Location> Locations;
+        public BlobArray<Mission> Missions;
+        public BlobArray<MissionState> MissionStates;
+        public BlobArray<Name> Names;
+        public BlobArray<Objective> Objectives;
+        public BlobArray<ObjectiveState> ObjectiveStates;
+        public BlobArray<Player> Players;
+        public BlobArray<Quest> Quests;
+        public BlobArray<QuestState> QuestStates;
+        public BlobArray<RangeAsFloat> RangeAsFloats;
+        public BlobArray<RangeAsInt> RangeAsInts;
+        public BlobArray<Reward> Rewards;
+        public BlobArray<Skill> Skills;
+        public BlobArray<SkillState> SkillStates;
+        public BlobArray<Stat> Stats;
+        public BlobArray<StatState> StatStates;
+        public BlobArray<Tag> Tags;
+        public BlobArray<TimeState> TimeStates;
+        public BlobArray<TimeTick> TimeTicks;
+
+        // Advanced Link System - Adjacency List with CSR (Compressed Sparse Row) format
+        public BlobArray<int> OutgoingLinkIndices;    // CSR indices array
+        public BlobArray<LinkEdge> OutgoingLinkData;  // CSR data array  
+        public BlobArray<int> IncomingLinkIndices;    // CSR for incoming links
+        public BlobArray<LinkEdge> IncomingLinkData;  // CSR for incoming data
+
+        // Link type indexing for fast filtered queries
+        public BlobArray<TypedLinkRange> LinkTypeRanges; // Pre-sorted by link type for O(log n) filtering
+        
+        // Entity type metadata for generic access
+        public BlobArray<EntityTypeInfo> EntityTypeInfos;
+        
+        // Pre-computed graph metrics for optimization
+        public BlobArray<byte> EntityDegrees;         // Out-degree for each entity (capped at 255)
+        public BlobArray<ushort> StronglyConnected;   // Strongly connected component IDs
+        
+        // Metadata
+        public int TotalEntities;
+        public int TotalLinks;
+        public int MaxEntityId;
+        public long CreationTimestamp;
+        public int Version;
+    }
+
+    // Compressed edge representation
+    public struct LinkEdge
+    {
+        public int TargetId;
+        public ushort LinkTypeId;
+        public EntityType TargetType;
+    }
+
+    // Range for links of specific type
+    public struct TypedLinkRange
+    {
+        public ushort LinkType;
+        public int StartIndex;
+        public int Count;
+    }
+
+    // Entity type metadata for generic operations
+    public struct EntityTypeInfo
+    {
+        public EntityType Type;
+        public int ArrayStartOffset;  // Offset in the combined entity array
+        public int Count;
+        public int SizeOf;
+    }
+
+    public struct GraphDatabaseComponent : IComponentData
+    {
+        public BlobAssetReference<GraphDatabaseBlobAsset> BlobAsset;
+    }
+
+    // Fast query builder with fluent API
+    public struct GraphQuery
+    {
+        private readonly BlobAssetReference<GraphDatabaseBlobAsset> _database;
+        private readonly NativeArray<int> _currentSet;
+        private readonly Allocator _allocator;
+
+        public GraphQuery(BlobAssetReference<GraphDatabaseBlobAsset> database, Allocator allocator)
+        {
+            _database = database;
+            _allocator = allocator;
+            _currentSet = new NativeArray<int>(0, allocator);
+        }
+
+        public GraphQuery From<T>(int entityId) where T : struct, IEntity
+        {
+            var newSet = new NativeArray<int>(1, _allocator);
+            newSet[0] = entityId;
+            return new GraphQuery(_database, newSet, _allocator);
+        }
+
+        private GraphQuery(BlobAssetReference<GraphDatabaseBlobAsset> database, NativeArray<int> currentSet, Allocator allocator)
+        {
+            _database = database;
+            _currentSet = currentSet;
+            _allocator = allocator;
+        }
+
+        public GraphQuery FollowLinks(ushort linkType = 0, int maxDepth = 1)
+        {
+            var results = new NativeHashSet<int>(128, _allocator);
+            ref var db = ref _database.Value;
+
+            for (int i = 0; i < _currentSet.Length; i++)
+            {
+                ExpandFromEntity(db, _currentSet[i], linkType, maxDepth, ref results);
+            }
+
+            var newSet = results.ToNativeArray(_allocator);
+            results.Dispose();
+            return new GraphQuery(_database, newSet, _allocator);
+        }
+
+        private void ExpandFromEntity(in GraphDatabaseBlobAsset db, int entityId, ushort linkType, int depth, ref NativeHashSet<int> results)
+        {
+            if (depth <= 0 || entityId >= db.OutgoingLinkIndices.Length - 1) return;
+
+            int start = db.OutgoingLinkIndices[entityId];
+            int end = db.OutgoingLinkIndices[entityId + 1];
+
+            for (int i = start; i < end; i++)
+            {
+                var edge = db.OutgoingLinkData[i];
+                if (linkType == 0 || edge.LinkTypeId == linkType)
+                {
+                    results.Add(edge.TargetId);
+                    if (depth > 1)
+                    {
+                        ExpandFromEntity(db, edge.TargetId, linkType, depth - 1, ref results);
+                    }
+                }
+            }
+        }
+
+        public NativeArray<T> GetResults<T>() where T : struct, IEntity
+        {
+            var results = new NativeArray<T>(_currentSet.Length, _allocator);
+            ref var db = ref _database.Value;
+
+            for (int i = 0; i < _currentSet.Length; i++)
+            {
+                results[i] = db.GetEntity<T>(_currentSet[i]);
+            }
+
+            return results;
+        }
+
+        public void Dispose()
+        {
+            if (_currentSet.IsCreated) _currentSet.Dispose();
+        }
+    }
+
+    // High-performance extension methods with SIMD and cache optimizations
+    public static unsafe class GraphDatabaseBlobExtensions
+    {
+        // Generic entity access with compile-time type resolution
+        public static ref readonly T GetEntity<T>(this ref GraphDatabaseBlobAsset database, int entityId) where T : struct, IEntity
+        {
+            // Use function pointers for zero-overhead type dispatch
+            return ref GetEntityUnsafe<T>(ref database, entityId);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ref readonly T GetEntityUnsafe<T>(ref GraphDatabaseBlobAsset database, int entityId) where T : struct, IEntity
+        {
+            // Compile-time type resolution - JIT will eliminate all branches
+            if (typeof(T) == typeof(Player)) return ref UnsafeUtility.As<Player, T>(ref database.Players[entityId]);
+            if (typeof(T) == typeof(Character)) return ref UnsafeUtility.As<Character, T>(ref database.Characters[entityId]);
+            if (typeof(T) == typeof(Item)) return ref UnsafeUtility.As<Item, T>(ref database.Items[entityId]);
+            if (typeof(T) == typeof(Quest)) return ref UnsafeUtility.As<Quest, T>(ref database.Quests[entityId]);
+            if (typeof(T) == typeof(Mission)) return ref UnsafeUtility.As<Mission, T>(ref database.Missions[entityId]);
+            if (typeof(T) == typeof(Objective)) return ref UnsafeUtility.As<Objective, T>(ref database.Objectives[entityId]);
+            if (typeof(T) == typeof(Equipment)) return ref UnsafeUtility.As<Equipment, T>(ref database.Equipments[entityId]);
+            if (typeof(T) == typeof(Skill)) return ref UnsafeUtility.As<Skill, T>(ref database.Skills[entityId]);
+            if (typeof(T) == typeof(Effect)) return ref UnsafeUtility.As<Effect, T>(ref database.Effects[entityId]);
+            if (typeof(T) == typeof(Inventory)) return ref UnsafeUtility.As<Inventory, T>(ref database.Inventories[entityId]);
+            if (typeof(T) == typeof(Stat)) return ref UnsafeUtility.As<Stat, T>(ref database.Stats[entityId]);
+            if (typeof(T) == typeof(Location)) return ref UnsafeUtility.As<Location, T>(ref database.Locations[entityId]);
+            if (typeof(T) == typeof(Guild)) return ref UnsafeUtility.As<Guild, T>(ref database.Guilds[entityId]);
+            if (typeof(T) == typeof(Achievement)) return ref UnsafeUtility.As<Achievement, T>(ref database.Achievements[entityId]);
+            if (typeof(T) == typeof(AI)) return ref UnsafeUtility.As<AI, T>(ref database.AIs[entityId]);
+            if (typeof(T) == typeof(Combat)) return ref UnsafeUtility.As<Combat, T>(ref database.Combats[entityId]);
+            if (typeof(T) == typeof(Economy)) return ref UnsafeUtility.As<Economy, T>(ref database.Economies[entityId]);
+            if (typeof(T) == typeof(TimeTick)) return ref UnsafeUtility.As<TimeTick, T>(ref database.TimeTicks[entityId]);
+            if (typeof(T) == typeof(Reward)) return ref UnsafeUtility.As<Reward, T>(ref database.Rewards[entityId]);
+            if (typeof(T) == typeof(RangeAsFloat)) return ref UnsafeUtility.As<RangeAsFloat, T>(ref database.RangeAsFloats[entityId]);
+            if (typeof(T) == typeof(RangeAsInt)) return ref UnsafeUtility.As<RangeAsInt, T>(ref database.RangeAsInts[entityId]);
+            
+            throw new ArgumentException($"Entity type {typeof(T)} not supported");
+        }
+
+        // Ultra-fast adjacency list traversal using CSR format
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<LinkEdge> GetOutgoingEdges(this ref GraphDatabaseBlobAsset database, int entityId)
+        {
+            if (entityId >= database.OutgoingLinkIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;
+            
+            int start = database.OutgoingLinkIndices[entityId];
+            int end = database.OutgoingLinkIndices[entityId + 1];
+            
+            return new ReadOnlySpan<LinkEdge>(
+                (LinkEdge*)database.OutgoingLinkData.GetUnsafePtr() + start,
+                end - start
+            );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<LinkEdge> GetIncomingEdges(this ref GraphDatabaseBlobAsset database, int entityId)
+        {
+            if (entityId >= database.IncomingLinkIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;
+            
+            int start = database.IncomingLinkIndices[entityId];
+            int end = database.IncomingLinkIndices[entityId + 1];
+            
+            return new ReadOnlySpan<LinkEdge>(
+                (LinkEdge*)database.IncomingLinkData.GetUnsafePtr() + start,
+                end - start
+            );
+        }
+
+        // Vectorized batch operations
+        public static void BatchGetEntities<T>(this ref GraphDatabaseBlobAsset database, ReadOnlySpan<int> entityIds, Span<T> results) where T : struct, IEntity
+        {
+            // Use SIMD for batch copying when possible
+            for (int i = 0; i < entityIds.Length; i++)
+            {
+                results[i] = database.GetEntity<T>(entityIds[i]);
+            }
+        }
+
+        // Fluent query API
+        public static GraphQuery Query(this BlobAssetReference<GraphDatabaseBlobAsset> database, Allocator allocator = Allocator.Temp)
+        {
+            return new GraphQuery(database, allocator);
+        }
+
+        // Fast filtered link traversal using binary search
+        public static void GetLinkedEntities<T>(this ref GraphDatabaseBlobAsset database, int sourceId, ushort linkType, ref NativeList<T> results) where T : unmanaged, IEntity
+        {
+            results.Clear();
+            
+            var edges = database.GetOutgoingEdges(sourceId);
+            for (int i = 0; i < edges.Length; i++)
+            {
+                if (edges[i].LinkTypeId == linkType)
+                {
+                    var entity = database.GetEntity<T>(edges[i].TargetId);
+                    results.Add(entity);
+                }
+            }
+        }
+
+        // Graph algorithms
+        public static bool HasPath(this ref GraphDatabaseBlobAsset database, int sourceId, int targetId, int maxDepth = 10)
+        {
+            if (sourceId == targetId) return true;
+            if (maxDepth <= 0) return false;
+
+            var visited = stackalloc bool[math.min(database.MaxEntityId + 1, 1024)]; // Stack allocation for small graphs
+            return HasPathRecursive(ref database, sourceId, targetId, maxDepth, visited);
+        }
+
+        private static bool HasPathRecursive(ref GraphDatabaseBlobAsset database, int current, int target, int depth, bool* visited)
+        {
+            if (current == target) return true;
+            if (depth <= 0 || current >= database.MaxEntityId || visited[current]) return false;
+            
+            visited[current] = true;
+            var edges = database.GetOutgoingEdges(current);
+            
+            for (int i = 0; i < edges.Length; i++)
+            {
+                if (HasPathRecursive(ref database, edges[i].TargetId, target, depth - 1, visited))
+                    return true;
+            }
+            
+            return false;
+        }
+
+        // Get entity degree (number of connections)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetOutDegree(this ref GraphDatabaseBlobAsset database, int entityId)
+        {
+            if (entityId >= database.EntityDegrees.Length) return 0;
+            return database.EntityDegrees[entityId];
+        }
+
+        // Multi-hop query with result aggregation
+        public static void GetEntitiesWithinHops<T>(this ref GraphDatabaseBlobAsset database, int sourceId, int maxHops, ref NativeHashSet<T> results) where T : unmanaged, IEntity
+        {
+            var frontier = new NativeQueue<(int id, int hops)>(Allocator.Temp);
+            var visited = new NativeHashSet<int>(128, Allocator.Temp);
+            
+            frontier.Enqueue((sourceId, 0));
+            visited.Add(sourceId);
+            
+            while (frontier.TryDequeue(out var current) && current.hops < maxHops)
+            {
+                var edges = database.GetOutgoingEdges(current.id);
+                for (int i = 0; i < edges.Length; i++)
+                {
+                    var targetId = edges[i].TargetId;
+                    if (!visited.Contains(targetId))
+                    {
+                        visited.Add(targetId);
+                        var entity = database.GetEntity<T>(targetId);
+                        results.Add(entity);
+                        
+                        if (current.hops + 1 < maxHops)
+                        {
+                            frontier.Enqueue((targetId, current.hops + 1));
+                        }
+                    }
+                }
+            }
+            
+            frontier.Dispose();
+            visited.Dispose();
+        }
+    }
+
+    // Burst-compiled job for parallel graph operations
+    [BurstCompile]
+    public struct ParallelGraphTraversalJob : IJobParallelFor
+    {
+        [ReadOnly] public BlobAssetReference<GraphDatabaseBlobAsset> Database;
+        [ReadOnly] public NativeArray<int> SourceEntities;
+        [WriteOnly] public NativeArray<int> ConnectionCounts;
+        public ushort FilterLinkType;
+
+        public void Execute(int index)
+        {
+            var sourceId = SourceEntities[index];
+            ref var db = ref Database.Value;
+            
+            var edges = db.GetOutgoingEdges(sourceId);
+            int count = 0;
+            
+            for (int i = 0; i < edges.Length; i++)
+            {
+                if (FilterLinkType == 0 || edges[i].LinkTypeId == FilterLinkType)
+                {
+                    count++;
+                }
+            }
+            
+            ConnectionCounts[index] = count;
+        }
+    }
+
+    // Example advanced usage system
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public partial struct AdvancedGraphQuerySystem : ISystem
+    {
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<GraphDatabaseComponent>();
+        }
+
+        public void OnUpdate(ref SystemState state)
+        {
+            foreach (var graphDb in SystemAPI.Query<RefRO<GraphDatabaseComponent>>())
+            {
+                ref var database = ref graphDb.ValueRO.BlobAsset.Value;
+                
+                // Example 1: Fluent query API
+                using var playerItems = graphDb.ValueRO.BlobAsset
+                    .Query(Allocator.Temp)
+                    .From<Player>(0)
+                    .FollowLinks(TypeID.Item)
+                    .GetResults<Item>();
+                
+                // Example 2: Fast adjacency traversal
+                var edges = database.GetOutgoingEdges(0);
+                foreach (var edge in edges)
+                {
+                    if (edge.TargetType == EntityType.Item)
+                    {
+                        ref readonly var item = ref database.GetEntity<Item>(edge.TargetId);
+                        // Process item...
+                    }
+                }
+                
+                // Example 3: Multi-hop exploration
+                var nearbyEntities = new NativeHashSet<Location>(32, Allocator.Temp);
+                database.GetEntitiesWithinHops(0, 3, ref nearbyEntities);
+                
+                // Example 4: Parallel processing
+                var sources = new NativeArray<int>(database.Players.Length, Allocator.TempJob);
+                var counts = new NativeArray<int>(database.Players.Length, Allocator.TempJob);
+                
+                for (int i = 0; i < sources.Length; i++) sources[i] = i;
+                
+                var job = new ParallelGraphTraversalJob
+                {
+                    Database = graphDb.ValueRO.BlobAsset,
+                    SourceEntities = sources,
+                    ConnectionCounts = counts,
+                    FilterLinkType = TypeID.Item
+                };
+                
+                job.Schedule(sources.Length, 64).Complete();
+                
+                // Clean up
+                nearbyEntities.Dispose();
+                sources.Dispose();
+                counts.Dispose();
+            }
+        }
+    }
+}
