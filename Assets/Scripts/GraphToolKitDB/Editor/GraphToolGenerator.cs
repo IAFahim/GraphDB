@@ -52,6 +52,7 @@ public class GraphToolGenerator : EditorWindow
 
     private List<Type> discoveredTypes = new List<Type>();
     private Vector2 scrollPosition;
+    private Vector2 mainScrollPosition; // For the main window scroll view
     private Texture2D folderIcon, warningIcon, okIcon, infoIcon;
 
     // Preview
@@ -116,6 +117,9 @@ public class GraphToolGenerator : EditorWindow
 
     private void OnGUI()
     {
+        // --- ADDED MAIN SCROLL VIEW ---
+        mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
         DrawHeader();
         DrawConfiguration();
 
@@ -127,6 +131,8 @@ public class GraphToolGenerator : EditorWindow
 
         EditorGUILayout.Space(8);
         DrawPreviewAndExport();
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void DrawHeader()
@@ -447,6 +453,7 @@ public class GraphToolGenerator : EditorWindow
             });
 
         if (genBlobAsset)
+        {
             previewFiles.Add(new GeneratedFile
             {
                 Key = "Blob",
@@ -455,6 +462,15 @@ public class GraphToolGenerator : EditorWindow
                 Content = GenerateBlobAssetCode(allUsings),
                 Enabled = true
             });
+            previewFiles.Add(new GeneratedFile
+            {
+                Key = "BlobExtensions",
+                FileName = $"{graphName}BlobQueryExtensions.cs",
+                Path = ecsPath,
+                Content = GenerateBlobQueryExtensionsCode(allUsings),
+                Enabled = true
+            });
+        }
 
         if (genBaker)
             previewFiles.Add(new GeneratedFile
@@ -629,7 +645,8 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("    #endregion");
         builder.AppendLine();
         builder.AppendLine("    #region Node Definitions");
-        builder.AppendLine("    public interface IDataNode : INode { int NodeID { get; set; } }");
+        // --- MODIFIED IDataNode INTERFACE ---
+        builder.AppendLine("    public interface IDataNode : INode { int NodeID { get; set; } EntityType EntityType { get; } }");
         builder.AppendLine();
         foreach (var type in discoveredTypes.Where(t => t.Name != "Link"))
         {
@@ -707,31 +724,25 @@ public class GraphToolGenerator : EditorWindow
             builder.AppendLine();
             builder.AppendLine("            // --- PASS 2: Create links by traversing graph connections ---");
             builder.AppendLine("            int linkId = 0;");
-            builder.AppendLine("            foreach (var sourceNode in graph.GetNodes())");
+            builder.AppendLine("            foreach (var sourceNode in graph.GetNodes().OfType<IDataNode>())");
             builder.AppendLine("            {");
             builder.AppendLine("                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == \"OutputLink\");");
             builder.AppendLine("                if (outputPort == null || !outputPort.isConnected) continue;");
             builder.AppendLine("                if (!nodeToIdMap.TryGetValue(sourceNode, out int sourceId)) continue;");
             builder.AppendLine();
-            builder.AppendLine("                var sourceDataType = GetNodeType(sourceNode);");
-            builder.AppendLine("                if (sourceDataType == null) continue;");
-            builder.AppendLine();
             builder.AppendLine("                var connectedPorts = new List<IPort>();");
             builder.AppendLine("                outputPort.GetConnectedPorts(connectedPorts);");
             builder.AppendLine("                foreach (var connectedPort in connectedPorts.Where(p => p.name == \"InputLink\"))");
             builder.AppendLine("                {");
-            builder.AppendLine("                    var targetNode = connectedPort.GetNode();");
-            builder.AppendLine("                    if (!nodeToIdMap.TryGetValue(targetNode, out int targetId)) continue;");
-            builder.AppendLine();
-            builder.AppendLine("                    var targetDataType = GetNodeType(targetNode);");
-            builder.AppendLine("                    if (targetDataType == null) continue;");
+            builder.AppendLine("                    var targetNode = connectedPort.GetNode() as IDataNode;");
+            builder.AppendLine("                    if (targetNode == null || !nodeToIdMap.TryGetValue(targetNode, out int targetId)) continue;");
             builder.AppendLine();
             builder.AppendLine("                    var link = new Link");
             builder.AppendLine("                    {");
             builder.AppendLine("                        ID = linkId++,");
-            builder.AppendLine("                        SourceType = (EntityType)Enum.Parse(typeof(EntityType), sourceDataType.Name),");
+            builder.AppendLine("                        SourceType = sourceNode.EntityType,");
             builder.AppendLine("                        SourceID = sourceId,");
-            builder.AppendLine("                        TargetType = (EntityType)Enum.Parse(typeof(EntityType), targetDataType.Name),");
+            builder.AppendLine("                        TargetType = targetNode.EntityType,");
             builder.AppendLine("                        TargetID = targetId");
             builder.AppendLine("                    };");
             builder.AppendLine("                    runtimeAsset.Links.Add(link);");
@@ -742,15 +753,6 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine();
         builder.AppendLine($"            ctx.AddObjectToAsset(\"{graphName}\", runtimeAsset);");
         builder.AppendLine("            ctx.SetMainObject(runtimeAsset);");
-        builder.AppendLine("        }");
-        builder.AppendLine();
-        builder.AppendLine("        private Type GetNodeType(INode node)");
-        builder.AppendLine("        {");
-        foreach (var type in discoveredTypes.Where(t => t.Name != "Link"))
-        {
-            builder.AppendLine($"            if (node is {type.Name}DefinitionNode) return typeof({type.Name});");
-        }
-        builder.AppendLine("            return null;");
         builder.AppendLine("        }");
         builder.AppendLine("    }");
         builder.AppendLine("    #endregion");
@@ -772,7 +774,6 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("using System;");
         builder.AppendLine("using System.Runtime.CompilerServices;");
         builder.AppendLine("using Unity.Collections;");
-        builder.AppendLine("using Unity.Collections.LowLevel.Unsafe;");
         builder.AppendLine("using Unity.Entities;");
         builder.AppendLine("using Unity.Mathematics;");
         foreach (var u in usings.OrderBy(x => x)) builder.AppendLine($"using {u};");
@@ -930,8 +931,29 @@ public class GraphToolGenerator : EditorWindow
             builder.AppendLine("        }");
         }
         builder.AppendLine("    }");
-        builder.AppendLine();
+        builder.AppendLine("}");
+        return builder.ToString();
+    }
 
+    private string GenerateBlobQueryExtensionsCode(HashSet<string> usings)
+    {
+        var blobTypes = discoveredTypes.Where(IsBlittableCached).ToList();
+        bool hasLink = discoveredTypes.Any(t => t.Name == "Link") || addLinkStruct;
+        var builder = new StringBuilder();
+        string blobClassName = $"{graphName}BlobAsset";
+
+        builder.AppendLine($"// ----- AUTO-GENERATED ECS/DOTS QUERY EXTENSIONS FILE BY {nameof(GraphToolGenerator)}.cs -----");
+        builder.AppendLine();
+        builder.AppendLine("using System;");
+        builder.AppendLine("using System.Runtime.CompilerServices;");
+        builder.AppendLine("using Unity.Collections;");
+        builder.AppendLine("using Unity.Collections.LowLevel.Unsafe;");
+        builder.AppendLine("using Unity.Entities;");
+        foreach (var u in usings.OrderBy(x => x)) builder.AppendLine($"using {u};");
+        builder.AppendLine($"using {runtimeNamespace};");
+        builder.AppendLine();
+        builder.AppendLine($"namespace {ecsNamespace}");
+        builder.AppendLine("{");
         builder.AppendLine($"    public static unsafe class {graphName}BlobExtensions");
         builder.AppendLine("    {");
         // GetEntity<T>
@@ -1082,6 +1104,9 @@ public class GraphToolGenerator : EditorWindow
         builder.AppendLine("        [SerializeField]");
         builder.AppendLine("        private int m_NodeID;");
         builder.AppendLine("        public int NodeID { get => m_NodeID; set => m_NodeID = value; }");
+        builder.AppendLine();
+        // --- ADDED EntityType PROPERTY ---
+        builder.AppendLine($"        public EntityType EntityType => EntityType.{dataType.Name};");
         builder.AppendLine();
         builder.AppendLine($"        public new string Title => $\"{{m_NodeID}} - {displayTitle}\";");
         builder.AppendLine();
