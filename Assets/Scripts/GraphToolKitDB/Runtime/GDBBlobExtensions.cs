@@ -1,14 +1,24 @@
+// ----- AUTO-GENERATED ECS/DOTS QUERY EXTENSIONS FILE BY GraphToolGenerator.cs -----
+
 using System;
 using System.Runtime.CompilerServices;
-using GraphToolKitDB.Runtime;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using GraphTookKitDB.Runtime;
+using GraphToolKitDB.Runtime;
+using System;
+using System.Collections.Generic;
+using Unity.Collections;
+using UnityEngine;
+using GraphTookKitDB.Runtime;
 
 namespace GraphTookKitDB.Runtime.ECS
 {
     public static unsafe class GDBBlobExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref readonly T GetEntity<T>(this ref GDBBlobAsset db, int id) where T : struct, IEntity
+        public static ref readonly T GetEntity<T>(this ref GDBBlobAsset db, int id) where T : struct
         {
             if (typeof(T) == typeof(Achievement)) { ref var r = ref db.Achievements[id]; return ref Unsafe.As<Achievement, T>(ref r); }
             if (typeof(T) == typeof(AchievementState)) { ref var r = ref db.AchievementStates[id]; return ref Unsafe.As<AchievementState, T>(ref r); }
@@ -74,7 +84,7 @@ namespace GraphTookKitDB.Runtime.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetLinkedEntities<T>(this ref GDBBlobAsset db, int sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged, IEntity
+        public static void GetLinkedEntities<T>(this ref GDBBlobAsset db, int sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged
         {
             results.Clear();
             var edges = db.GetOutgoingEdges(sourceId);

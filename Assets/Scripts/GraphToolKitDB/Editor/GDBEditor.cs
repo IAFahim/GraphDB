@@ -12,17 +12,19 @@ using GraphTookKitDB.Runtime;
 using GraphToolKitDB.Runtime;
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using GraphTookKitDB.Runtime;
 
 namespace GraphTookKitDB.Editor
 {
+
     [Serializable]
     public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         [SerializeField] private List<TKey> m_Keys = new List<TKey>();
         [SerializeField] private List<TValue> m_Values = new List<TValue>();
-
+        
         private Dictionary<TKey, TValue> m_Dictionary;
         private bool m_IsDeserialized;
 
@@ -38,7 +40,6 @@ namespace GraphTookKitDB.Editor
                         m_Dictionary[m_Keys[i]] = m_Values[i];
                     }
                 }
-
                 m_IsDeserialized = true;
             }
         }
@@ -60,122 +61,26 @@ namespace GraphTookKitDB.Editor
             m_IsDeserialized = false;
         }
 
-        public TValue this[TKey key]
-        {
-            get
-            {
-                EnsureDeserialized();
-                return m_Dictionary[key];
-            }
-            set
-            {
-                EnsureDeserialized();
-                m_Dictionary[key] = value;
-            }
-        }
-
-        public ICollection<TKey> Keys
-        {
-            get
-            {
-                EnsureDeserialized();
-                return m_Dictionary.Keys;
-            }
-        }
-
-        public ICollection<TValue> Values
-        {
-            get
-            {
-                EnsureDeserialized();
-                return m_Dictionary.Values;
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                EnsureDeserialized();
-                return m_Dictionary.Count;
-            }
-        }
-
+        public TValue this[TKey key] { get { EnsureDeserialized(); return m_Dictionary[key]; } set { EnsureDeserialized(); m_Dictionary[key] = value; } }
+        public ICollection<TKey> Keys { get { EnsureDeserialized(); return m_Dictionary.Keys; } }
+        public ICollection<TValue> Values { get { EnsureDeserialized(); return m_Dictionary.Values; } }
+        public int Count { get { EnsureDeserialized(); return m_Dictionary.Count; } }
         public bool IsReadOnly => ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).IsReadOnly;
-
-        public void Add(TKey key, TValue value)
-        {
-            EnsureDeserialized();
-            m_Dictionary.Add(key, value);
-        }
-
-        public void Add(KeyValuePair<TKey, TValue> item)
-        {
-            EnsureDeserialized();
-            ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Add(item);
-        }
-
-        public void Clear()
-        {
-            EnsureDeserialized();
-            m_Dictionary.Clear();
-        }
-
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
-            EnsureDeserialized();
-            return m_Dictionary.Contains(item);
-        }
-
-        public bool ContainsKey(TKey key)
-        {
-            EnsureDeserialized();
-            return m_Dictionary.ContainsKey(key);
-        }
-
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-        {
-            EnsureDeserialized();
-            ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).CopyTo(array, arrayIndex);
-        }
-
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            EnsureDeserialized();
-            return m_Dictionary.GetEnumerator();
-        }
-
-        public bool Remove(TKey key)
-        {
-            EnsureDeserialized();
-            return m_Dictionary.Remove(key);
-        }
-
-        public bool Remove(KeyValuePair<TKey, TValue> item)
-        {
-            EnsureDeserialized();
-            return ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Remove(item);
-        }
-
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            EnsureDeserialized();
-            return m_Dictionary.TryGetValue(key, out value);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            EnsureDeserialized();
-            return m_Dictionary.GetEnumerator();
-        }
+        public void Add(TKey key, TValue value) { EnsureDeserialized(); m_Dictionary.Add(key, value); }
+        public void Add(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Add(item); }
+        public void Clear() { EnsureDeserialized(); m_Dictionary.Clear(); }
+        public bool Contains(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); return m_Dictionary.Contains(item); }
+        public bool ContainsKey(TKey key) { EnsureDeserialized(); return m_Dictionary.ContainsKey(key); }
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) { EnsureDeserialized(); ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).CopyTo(array, arrayIndex); }
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() { EnsureDeserialized(); return m_Dictionary.GetEnumerator(); }
+        public bool Remove(TKey key) { EnsureDeserialized(); return m_Dictionary.Remove(key); }
+        public bool Remove(KeyValuePair<TKey, TValue> item) { EnsureDeserialized(); return ((ICollection<KeyValuePair<TKey, TValue>>)m_Dictionary).Remove(item); }
+        public bool TryGetValue(TKey key, out TValue value) { EnsureDeserialized(); return m_Dictionary.TryGetValue(key, out value); }
+        IEnumerator IEnumerable.GetEnumerator() { EnsureDeserialized(); return m_Dictionary.GetEnumerator(); }
     }
 
-    public class Linkable
-    {
-    }
 
     #region Graph Definition
-
     [Graph("gdb")]
     [Serializable]
     public class GDBGraph : Graph
@@ -184,8 +89,7 @@ namespace GraphTookKitDB.Editor
         private SerializableDictionary<Type, int> nodeIdCounters = new SerializableDictionary<Type, int>();
 
         [MenuItem("Assets/Create/GDB Graph")]
-        private static void CreateAssetFile() =>
-            GraphDatabase.PromptInProjectBrowserToCreateNewAsset<GDBGraph>("New GDB");
+        private static void CreateAssetFile() => GraphDatabase.PromptInProjectBrowserToCreateNewAsset<GDBGraph>("New GDB");
 
         public override void OnGraphChanged(GraphLogger infos)
         {
@@ -197,65 +101,63 @@ namespace GraphTookKitDB.Editor
                     var nodeType = node.GetType();
                     nodeIdCounters.TryGetValue(nodeType, out int currentId);
                     currentId++;
-                    node.NodeID = currentId;
+                    node.NodeID = (ushort)currentId;
                     nodeIdCounters[nodeType] = currentId;
                 }
             }
         }
 
-        public static T GetPortValue<T>(IPort port)
-        {
-            if (port.isConnected)
-            {
+        public static T GetPortValue<T>(IPort port) {
+            if (port.isConnected) {
                 var sourceNode = port.firstConnectedPort?.GetNode();
-                if (sourceNode is IConstantNode c)
-                {
-                    c.TryGetValue(out T v);
-                    return v;
-                }
-
-                if (sourceNode is IVariableNode vn)
-                {
-                    vn.variable.TryGetDefaultValue(out T v);
-                    return v;
-                }
-            }
-            else
-            {
-                port.TryGetValue(out T v);
-                return v;
-            }
-
+                if (sourceNode is IConstantNode c) { c.TryGetValue(out T v); return v; }
+                if (sourceNode is IVariableNode vn) { vn.variable.TryGetDefaultValue(out T v); return v; }
+            } else { port.TryGetValue(out T v); return v; }
             return default;
         }
     }
-
     #endregion
 
     #region Node Definitions
 
     public interface IDataNode : INode
     {
-        int NodeID { get; set; }
+        ushort NodeID { get; set; }
+        EntityType EntityType { get; }
     }
 
     [Serializable]
-    public class AchievementDefinitionNode : ContextNode, IDataNode
+    public abstract class GraphDBNode : ContextNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
-
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-        
-        public static EntityType EntityType => EntityType.Achievement;
-
-        public new string Title => $"{m_NodeID} - Achievement";
-
         public const string PortInputLink = "InputLink";
         public const string PortOutputLink = "OutputLink";
+        
+        [SerializeField] private ushort nodeId;
+        public ushort NodeID
+        {
+            get => nodeId;
+            set => nodeId = value;
+        }
+
+        public abstract EntityType EntityType { get; }
+
+        protected override void OnDefinePorts(IPortDefinitionContext context)
+        {
+            context.AddInputPort<ushort>(PortInputLink).WithDisplayName("In").Build();
+            context.AddOutputPort<ushort>(PortOutputLink).WithDisplayName("Out").Build();
+        }
+    }
+
+   public class DataNode : IDataNode
+    {
+        public ushort NodeID { get; set; }
+        public EntityType EntityType { get; set; }
+    }
+    [Serializable]
+    public class AchievementDefinitionNode : GraphDBNode, IDataNode
+    {
+        public override EntityType EntityType => EntityType.Achievement;
+
         public const string PortAchievementType = "AchievementType";
         public const string PortPoints = "Points";
         public const string PortIsHidden = "IsHidden";
@@ -263,8 +165,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortAchievementType).WithDisplayName("Achievement Type").Build();
             context.AddInputPort<int>(PortPoints).WithDisplayName("Points").Build();
@@ -273,40 +174,17 @@ namespace GraphTookKitDB.Editor
         }
     }
 
-    [UseWithContext(typeof(Node))]
     [Serializable]
-    public class TypeIDScriptableBlockNode : BlockNode
+    public class AchievementStateDefinitionNode : GraphDBNode, IDataNode
     {
-        const string LinkType = "LinkType";
-        protected override void OnDefineOptions(INodeOptionDefinition context)
-        {
-            context.AddNodeOption<LinkTypeSo>(LinkType, attributes: new Attribute[] { new DelayedAttribute() });
-        }
-    }
+        public override EntityType EntityType => EntityType.AchievementState;
 
-
-    [Serializable]
-    public class AchievementStateDefinitionNode : Node, IDataNode
-    {
-        [SerializeField] private int m_NodeID;
-
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Achievement State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortProgress = "Progress";
         public const string PortIsUnlocked = "IsUnlocked";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortProgress).WithDisplayName("Progress").Build();
             context.AddInputPort<bool>(PortIsUnlocked).WithDisplayName("Is Unlocked").Build();
@@ -314,20 +192,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class AIDefinitionNode : Node, IDataNode
+    public class AIDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.AI;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - A I";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortBehaviorType = "BehaviorType";
         public const string PortAggroRange = "AggroRange";
         public const string PortPatrolRadius = "PatrolRadius";
@@ -335,8 +203,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortBehaviorType).WithDisplayName("Behavior Type").Build();
             context.AddInputPort<float>(PortAggroRange).WithDisplayName("Aggro Range").Build();
@@ -346,27 +213,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class AIStateDefinitionNode : Node, IDataNode
+    public class AIStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.AIState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - A I State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortCurrentTarget = "CurrentTarget";
         public const string PortLastAction = "LastAction";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortCurrentTarget).WithDisplayName("Current Target").Build();
             context.AddInputPort<System.DateTime>(PortLastAction).WithDisplayName("Last Action").Build();
@@ -374,20 +230,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CharacterDefinitionNode : Node, IDataNode
+    public class CharacterDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Character;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Character";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortCharacterClass = "CharacterClass";
         public const string PortLevel = "Level";
         public const string PortRace = "Race";
@@ -395,8 +241,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortCharacterClass).WithDisplayName("Character Class").Build();
             context.AddInputPort<int>(PortLevel).WithDisplayName("Level").Build();
@@ -406,28 +251,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CharacterStateDefinitionNode : Node, IDataNode
+    public class CharacterStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.CharacterState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Character State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortHealth = "Health";
         public const string PortMana = "Mana";
         public const string PortStamina = "Stamina";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortHealth).WithDisplayName("Health").Build();
             context.AddInputPort<float>(PortMana).WithDisplayName("Mana").Build();
@@ -436,20 +270,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CombatDefinitionNode : Node, IDataNode
+    public class CombatDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Combat;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Combat";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortBaseDamage = "BaseDamage";
         public const string PortAttackSpeed = "AttackSpeed";
         public const string PortCritChance = "CritChance";
@@ -457,8 +281,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortBaseDamage).WithDisplayName("Base Damage").Build();
             context.AddInputPort<float>(PortAttackSpeed).WithDisplayName("Attack Speed").Build();
@@ -468,27 +291,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CombatStateDefinitionNode : Node, IDataNode
+    public class CombatStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.CombatState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Combat State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortIsInCombat = "IsInCombat";
         public const string PortLastAttack = "LastAttack";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<bool>(PortIsInCombat).WithDisplayName("Is In Combat").Build();
             context.AddInputPort<System.DateTime>(PortLastAttack).WithDisplayName("Last Attack").Build();
@@ -496,27 +308,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class DescriptionDefinitionNode : Node, IDataNode
+    public class DescriptionDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Description;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Description";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortText = "Text";
         public const string PortLanguageID = "LanguageID";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<string>(PortText).WithDisplayName("Text").Build();
             context.AddInputPort<ushort>(PortLanguageID).WithDisplayName("Language I D").Build();
@@ -524,20 +325,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EconomyDefinitionNode : Node, IDataNode
+    public class EconomyDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Economy;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Economy";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortBasePrice = "BasePrice";
         public const string PortInflation = "Inflation";
         public const string PortSupply = "Supply";
@@ -545,8 +336,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortBasePrice).WithDisplayName("Base Price").Build();
             context.AddInputPort<float>(PortInflation).WithDisplayName("Inflation").Build();
@@ -556,27 +346,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EconomyStateDefinitionNode : Node, IDataNode
+    public class EconomyStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.EconomyState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Economy State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortCurrentPrice = "CurrentPrice";
         public const string PortLastUpdate = "LastUpdate";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortCurrentPrice).WithDisplayName("Current Price").Build();
             context.AddInputPort<System.DateTime>(PortLastUpdate).WithDisplayName("Last Update").Build();
@@ -584,20 +363,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EffectDefinitionNode : Node, IDataNode
+    public class EffectDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Effect;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Effect";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortEffectType = "EffectType";
         public const string PortMagnitude = "Magnitude";
         public const string PortDurationTicks = "DurationTicks";
@@ -605,8 +374,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortEffectType).WithDisplayName("Effect Type").Build();
             context.AddInputPort<float>(PortMagnitude).WithDisplayName("Magnitude").Build();
@@ -616,27 +384,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EffectStateDefinitionNode : Node, IDataNode
+    public class EffectStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.EffectState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Effect State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortStacks = "Stacks";
         public const string PortRemainingTicks = "RemainingTicks";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortStacks).WithDisplayName("Stacks").Build();
             context.AddInputPort<long>(PortRemainingTicks).WithDisplayName("Remaining Ticks").Build();
@@ -644,20 +401,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EquipmentDefinitionNode : Node, IDataNode
+    public class EquipmentDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Equipment;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Equipment";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortEquipSlot = "EquipSlot";
         public const string PortLevel = "Level";
         public const string PortDurability = "Durability";
@@ -665,8 +412,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortEquipSlot).WithDisplayName("Equip Slot").Build();
             context.AddInputPort<int>(PortLevel).WithDisplayName("Level").Build();
@@ -676,20 +422,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class GuildDefinitionNode : Node, IDataNode
+    public class GuildDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Guild;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Guild";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortMaxMembers = "MaxMembers";
         public const string PortLevel = "Level";
         public const string PortExperience = "Experience";
@@ -697,8 +433,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortMaxMembers).WithDisplayName("Max Members").Build();
             context.AddInputPort<int>(PortLevel).WithDisplayName("Level").Build();
@@ -708,27 +443,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class GuildStateDefinitionNode : Node, IDataNode
+    public class GuildStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.GuildState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Guild State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortMemberCount = "MemberCount";
         public const string PortTreasury = "Treasury";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortMemberCount).WithDisplayName("Member Count").Build();
             context.AddInputPort<long>(PortTreasury).WithDisplayName("Treasury").Build();
@@ -736,28 +460,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class InventoryDefinitionNode : Node, IDataNode
+    public class InventoryDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Inventory;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Inventory";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortMaxSlots = "MaxSlots";
         public const string PortMaxWeight = "MaxWeight";
         public const string PortInventoryType = "InventoryType";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortMaxSlots).WithDisplayName("Max Slots").Build();
             context.AddInputPort<float>(PortMaxWeight).WithDisplayName("Max Weight").Build();
@@ -766,27 +479,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class InventoryStateDefinitionNode : Node, IDataNode
+    public class InventoryStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.InventoryState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Inventory State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortUsedSlots = "UsedSlots";
         public const string PortCurrentWeight = "CurrentWeight";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortUsedSlots).WithDisplayName("Used Slots").Build();
             context.AddInputPort<float>(PortCurrentWeight).WithDisplayName("Current Weight").Build();
@@ -794,20 +496,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ItemDefinitionNode : Node, IDataNode
+    public class ItemDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Item;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Item";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortItemType = "ItemType";
         public const string PortRarity = "Rarity";
         public const string PortMaxStack = "MaxStack";
@@ -816,8 +508,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortItemType).WithDisplayName("Item Type").Build();
             context.AddInputPort<int>(PortRarity).WithDisplayName("Rarity").Build();
@@ -828,20 +519,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class LocationDefinitionNode : Node, IDataNode
+    public class LocationDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Location;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Location";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortPosition = "Position";
         public const string PortScale = "Scale";
         public const string PortRotation = "Rotation";
@@ -849,8 +530,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<UnityEngine.Vector3>(PortPosition).WithDisplayName("Position").Build();
             context.AddInputPort<UnityEngine.Vector3>(PortScale).WithDisplayName("Scale").Build();
@@ -860,28 +540,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class MissionDefinitionNode : Node, IDataNode
+    public class MissionDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Mission;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Mission";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortPriority = "Priority";
         public const string PortIsRepeatable = "IsRepeatable";
         public const string PortMaxAttempts = "MaxAttempts";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortPriority).WithDisplayName("Priority").Build();
             context.AddInputPort<bool>(PortIsRepeatable).WithDisplayName("Is Repeatable").Build();
@@ -890,28 +559,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class MissionStateDefinitionNode : Node, IDataNode
+    public class MissionStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.MissionState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Mission State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortAttempts = "Attempts";
         public const string PortIsActive = "IsActive";
         public const string PortStartTime = "StartTime";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortAttempts).WithDisplayName("Attempts").Build();
             context.AddInputPort<bool>(PortIsActive).WithDisplayName("Is Active").Build();
@@ -920,27 +578,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class NameDefinitionNode : Node, IDataNode
+    public class NameDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Name;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Name";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortText = "Text";
         public const string PortLanguageID = "LanguageID";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<string>(PortText).WithDisplayName("Text").Build();
             context.AddInputPort<ushort>(PortLanguageID).WithDisplayName("Language I D").Build();
@@ -948,28 +595,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ObjectiveDefinitionNode : Node, IDataNode
+    public class ObjectiveDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Objective;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Objective";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortTargetValue = "TargetValue";
         public const string PortObjectiveType = "ObjectiveType";
         public const string PortIsOptional = "IsOptional";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortTargetValue).WithDisplayName("Target Value").Build();
             context.AddInputPort<ushort>(PortObjectiveType).WithDisplayName("Objective Type").Build();
@@ -978,27 +614,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ObjectiveStateDefinitionNode : Node, IDataNode
+    public class ObjectiveStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.ObjectiveState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Objective State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortCurrentValue = "CurrentValue";
         public const string PortIsCompleted = "IsCompleted";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortCurrentValue).WithDisplayName("Current Value").Build();
             context.AddInputPort<bool>(PortIsCompleted).WithDisplayName("Is Completed").Build();
@@ -1006,20 +631,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class PlayerDefinitionNode : Node, IDataNode
+    public class PlayerDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Player;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Player";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortLevel = "Level";
         public const string PortExperience = "Experience";
         public const string PortPrestigeLevel = "PrestigeLevel";
@@ -1027,8 +642,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortLevel).WithDisplayName("Level").Build();
             context.AddInputPort<float>(PortExperience).WithDisplayName("Experience").Build();
@@ -1038,28 +652,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class QuestDefinitionNode : Node, IDataNode
+    public class QuestDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Quest;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Quest";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortChapterID = "ChapterID";
         public const string PortDifficulty = "Difficulty";
         public const string PortIsMainQuest = "IsMainQuest";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortChapterID).WithDisplayName("Chapter I D").Build();
             context.AddInputPort<int>(PortDifficulty).WithDisplayName("Difficulty").Build();
@@ -1068,27 +671,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class QuestStateDefinitionNode : Node, IDataNode
+    public class QuestStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.QuestState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Quest State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortProgress = "Progress";
         public const string PortIsCompleted = "IsCompleted";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortProgress).WithDisplayName("Progress").Build();
             context.AddInputPort<bool>(PortIsCompleted).WithDisplayName("Is Completed").Build();
@@ -1096,28 +688,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RangeAsFloatDefinitionNode : Node, IDataNode
+    public class RangeAsFloatDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.RangeAsFloat;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Range As Float";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortMinValue = "MinValue";
         public const string PortMaxValue = "MaxValue";
         public const string PortPrecision = "Precision";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortMinValue).WithDisplayName("Min Value").Build();
             context.AddInputPort<float>(PortMaxValue).WithDisplayName("Max Value").Build();
@@ -1126,28 +707,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RangeAsIntDefinitionNode : Node, IDataNode
+    public class RangeAsIntDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.RangeAsInt;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Range As Int";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortMinValue = "MinValue";
         public const string PortMaxValue = "MaxValue";
         public const string PortStepSize = "StepSize";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortMinValue).WithDisplayName("Min Value").Build();
             context.AddInputPort<int>(PortMaxValue).WithDisplayName("Max Value").Build();
@@ -1156,20 +726,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RewardDefinitionNode : Node, IDataNode
+    public class RewardDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Reward;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Reward";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortRewardType = "RewardType";
         public const string PortAmount = "Amount";
         public const string PortChance = "Chance";
@@ -1177,8 +737,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortRewardType).WithDisplayName("Reward Type").Build();
             context.AddInputPort<int>(PortAmount).WithDisplayName("Amount").Build();
@@ -1188,20 +747,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class SkillDefinitionNode : Node, IDataNode
+    public class SkillDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Skill;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Skill";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortSkillType = "SkillType";
         public const string PortMaxLevel = "MaxLevel";
         public const string PortBaseCooldown = "BaseCooldown";
@@ -1209,8 +758,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortSkillType).WithDisplayName("Skill Type").Build();
             context.AddInputPort<int>(PortMaxLevel).WithDisplayName("Max Level").Build();
@@ -1220,28 +768,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class SkillStateDefinitionNode : Node, IDataNode
+    public class SkillStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.SkillState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Skill State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortLevel = "Level";
         public const string PortExperience = "Experience";
         public const string PortLastUsed = "LastUsed";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<int>(PortLevel).WithDisplayName("Level").Build();
             context.AddInputPort<float>(PortExperience).WithDisplayName("Experience").Build();
@@ -1250,20 +787,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class StatDefinitionNode : Node, IDataNode
+    public class StatDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Stat;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Stat";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortStatType = "StatType";
         public const string PortBaseValue = "BaseValue";
         public const string PortMinValue = "MinValue";
@@ -1271,8 +798,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortStatType).WithDisplayName("Stat Type").Build();
             context.AddInputPort<float>(PortBaseValue).WithDisplayName("Base Value").Build();
@@ -1282,27 +808,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class StatStateDefinitionNode : Node, IDataNode
+    public class StatStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.StatState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Stat State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortCurrentValue = "CurrentValue";
         public const string PortModifiers = "Modifiers";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<float>(PortCurrentValue).WithDisplayName("Current Value").Build();
             context.AddInputPort<float>(PortModifiers).WithDisplayName("Modifiers").Build();
@@ -1310,27 +825,16 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TagDefinitionNode : Node, IDataNode
+    public class TagDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.Tag;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Tag";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortTagType = "TagType";
         public const string PortValue = "Value";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<ushort>(PortTagType).WithDisplayName("Tag Type").Build();
             context.AddInputPort<int>(PortValue).WithDisplayName("Value").Build();
@@ -1338,28 +842,17 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TimeStateDefinitionNode : Node, IDataNode
+    public class TimeStateDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.TimeState;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Time State";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortElapsedTicks = "ElapsedTicks";
         public const string PortIsActive = "IsActive";
         public const string PortCycleCount = "CycleCount";
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<long>(PortElapsedTicks).WithDisplayName("Elapsed Ticks").Build();
             context.AddInputPort<bool>(PortIsActive).WithDisplayName("Is Active").Build();
@@ -1368,20 +861,10 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TimeTickDefinitionNode : Node, IDataNode
+    public class TimeTickDefinitionNode : GraphDBNode, IDataNode
     {
-        [SerializeField] private int m_NodeID;
+        public override EntityType EntityType => EntityType.TimeTick;
 
-        public int NodeID
-        {
-            get => m_NodeID;
-            set => m_NodeID = value;
-        }
-
-        public new string Title => $"{m_NodeID} - Time Tick";
-
-        public const string PortInputLink = "InputLink";
-        public const string PortOutputLink = "OutputLink";
         public const string PortStartTicks = "StartTicks";
         public const string PortDurationTicks = "DurationTicks";
         public const string PortIsRepeating = "IsRepeating";
@@ -1389,8 +872,7 @@ namespace GraphTookKitDB.Editor
 
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
-            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName("In").Build();
-            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName("Out").Build();
+            base.OnDefinePorts(context);
 
             context.AddInputPort<long>(PortStartTicks).WithDisplayName("Start Ticks").Build();
             context.AddInputPort<long>(PortDurationTicks).WithDisplayName("Duration Ticks").Build();
@@ -1400,16 +882,4 @@ namespace GraphTookKitDB.Editor
     }
 
     #endregion
-
-
-    internal static class EditorGraphHelper
-    {
-        public static string ToPascalCase(string input) => string.IsNullOrEmpty(input)
-            ? input
-            : char.ToUpperInvariant(input[0]) + input.Substring(1);
-
-        public static string SplitPascalCase(string input) => string.IsNullOrEmpty(input)
-            ? input
-            : ToPascalCase(Regex.Replace(input, "(?<!^)([A-Z])", " $1"));
-    }
 }
