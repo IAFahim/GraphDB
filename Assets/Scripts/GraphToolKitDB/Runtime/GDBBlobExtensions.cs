@@ -18,7 +18,7 @@ namespace GraphTookKitDB.Runtime.ECS
     public static unsafe class GDBBlobExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref readonly T GetEntity<T>(this ref GDBBlobAsset db, int id) where T : struct
+        public static ref readonly T GetEntity<T>(this ref GDBBlobAsset db, ushort id) where T : struct
         {
             if (typeof(T) == typeof(Achievement)) { ref var r = ref db.Achievements[id]; return ref Unsafe.As<Achievement, T>(ref r); }
             if (typeof(T) == typeof(AchievementState)) { ref var r = ref db.AchievementStates[id]; return ref Unsafe.As<AchievementState, T>(ref r); }
@@ -62,7 +62,7 @@ namespace GraphTookKitDB.Runtime.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReadOnlySpan<LinkEdge> GetOutgoingEdges(this ref GDBBlobAsset db, int entityId)
+        public static ReadOnlySpan<LinkEdge> GetOutgoingEdges(this ref GDBBlobAsset db, ushort entityId)
         {
             if (entityId >= db.OutgoingIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;
             int start = db.OutgoingIndices[entityId];
@@ -73,7 +73,7 @@ namespace GraphTookKitDB.Runtime.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReadOnlySpan<LinkEdge> GetIncomingEdges(this ref GDBBlobAsset db, int entityId)
+        public static ReadOnlySpan<LinkEdge> GetIncomingEdges(this ref GDBBlobAsset db, ushort entityId)
         {
             if (entityId >= db.IncomingIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;
             int start = db.IncomingIndices[entityId];
@@ -84,7 +84,7 @@ namespace GraphTookKitDB.Runtime.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetLinkedEntities<T>(this ref GDBBlobAsset db, int sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged
+        public static void GetLinkedEntities<T>(this ref GDBBlobAsset db, ushort sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged
         {
             results.Clear();
             var edges = db.GetOutgoingEdges(sourceId);
@@ -92,7 +92,7 @@ namespace GraphTookKitDB.Runtime.ECS
                 if (edges[i].TargetType == targetType) results.Add(db.GetEntity<T>(edges[i].TargetId));
         }
 
-        public static bool HasPath(this ref GDBBlobAsset db, int sourceId, int targetId, int maxDepth = 6)
+        public static bool HasPath(this ref GDBBlobAsset db, ushort sourceId, ushort targetId, ushort maxDepth = 6)
         {
             if (sourceId == targetId) return true;
             if (maxDepth <= 0 || sourceId > db.MaxEntityId || targetId > db.MaxEntityId) return false;
@@ -111,30 +111,30 @@ namespace GraphTookKitDB.Runtime.ECS
             }
         }
 
-        private static bool HasPathRecursive(ref GDBBlobAsset db, int current, int target, int depth, bool* visited)
+        private static bool HasPathRecursive(ref GDBBlobAsset db, ushort current, ushort target, ushort depth, bool* visited)
         {
             if (current == target) return true;
             if (depth <= 0 || visited[current]) return false;
             visited[current] = true;
             var edges = db.GetOutgoingEdges(current);
             for (int i = 0; i < edges.Length; i++)
-                if (HasPathRecursive(ref db, edges[i].TargetId, target, depth - 1, visited)) return true;
+                if (HasPathRecursive(ref db, edges[i].TargetId, target, (ushort)(depth - 1), visited)) return true;
             return false;
         }
 
-        private static bool HasPathRecursiveHeap(ref GDBBlobAsset db, int current, int target, int depth, NativeArray<bool> visited)
+        private static bool HasPathRecursiveHeap(ref GDBBlobAsset db, ushort current, ushort target, ushort depth, NativeArray<bool> visited)
         {
             if (current == target) return true;
             if (depth <= 0 || visited[current]) return false;
             visited[current] = true;
             var edges = db.GetOutgoingEdges(current);
             for (int i = 0; i < edges.Length; i++)
-                if (HasPathRecursiveHeap(ref db, edges[i].TargetId, target, depth - 1, visited)) return true;
+                if (HasPathRecursiveHeap(ref db, edges[i].TargetId, target, (ushort)(depth - 1), visited)) return true;
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsConnectedTo(this ref GDBBlobAsset db, int sourceId, int targetId, EntityType targetType = EntityType.None)
+        public static bool IsConnectedTo(this ref GDBBlobAsset db, ushort sourceId, ushort targetId, EntityType targetType = EntityType.None)
         {
             var edges = db.GetOutgoingEdges(sourceId);
             for (int i = 0; i < edges.Length; i++)

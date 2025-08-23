@@ -1,8 +1,8 @@
 // ----- AUTO-GENERATED ECS/DOTS BLOB FILE BY GraphToolGenerator.cs -----
 
+using System;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using GraphTookKitDB.Runtime;
@@ -57,9 +57,9 @@ namespace GraphTookKitDB.Runtime.ECS
         public BlobArray<TimeState> TimeStates;
         public BlobArray<TimeTick> TimeTicks;
         public BlobArray<Link> Links;
-        public BlobArray<int> OutgoingIndices;
+        public BlobArray<ushort> OutgoingIndices;
         public BlobArray<LinkEdge> OutgoingEdges;
-        public BlobArray<int> IncomingIndices;
+        public BlobArray<ushort> IncomingIndices;
         public BlobArray<LinkEdge> IncomingEdges;
         public int MaxEntityId;
     }
@@ -67,7 +67,7 @@ namespace GraphTookKitDB.Runtime.ECS
     // Edge data for CSR graph traversal
     public struct LinkEdge
     {
-        public int TargetId;
+        public ushort TargetId;
         public EntityType TargetType;
     }
 
@@ -76,6 +76,7 @@ namespace GraphTookKitDB.Runtime.ECS
         public BlobAssetReference<GDBBlobAsset> Blob;
     }
 
+#if UNITY_EDITOR
     public static class GDBBlobBuilder
     {
         public static BlobAssetReference<GDBBlobAsset> CreateBlobAsset(this GDBAsset sourceAsset)
@@ -129,14 +130,16 @@ namespace GraphTookKitDB.Runtime.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CopyArray<T>(BlobBuilder builder, ref BlobArray<T> target, System.Collections.Generic.List<T> source) where T : struct
+        private static void CopyArray<T>(BlobBuilder builder, ref BlobArray<T> target,
+            System.Collections.Generic.List<T> source) where T : struct
         {
-            var array = builder.Allocate(ref target, source != null ? source.Count : 0);
+            var array = builder.Allocate(ref target, source?.Count ?? 0);
             if (source == null || source.Count == 0) return;
             for (int i = 0; i < source.Count; i++) array[i] = source[i];
         }
 
-        private static void BuildCsrLinkSystem(BlobBuilder builder, ref GDBBlobAsset root, System.Collections.Generic.List<Link> links)
+        private static void BuildCsrLinkSystem(BlobBuilder builder, ref GDBBlobAsset root,
+            System.Collections.Generic.List<Link> links)
         {
             if (links == null || links.Count == 0)
             {
@@ -148,7 +151,8 @@ namespace GraphTookKitDB.Runtime.ECS
             }
 
             int maxId = CalculateMaxEntityIdFromLinks(links);
-            var outgoingGroups = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<LinkEdge>>();
+            var outgoingGroups =
+                new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<LinkEdge>>();
             foreach (var link in links)
             {
                 if (!outgoingGroups.TryGetValue(link.SourceID, out var list))
@@ -162,26 +166,30 @@ namespace GraphTookKitDB.Runtime.ECS
             for (int i = 0; i <= maxId; i++)
             {
                 if (outgoingGroups.TryGetValue(i, out var edges)) outEdgesList.AddRange(edges);
-                outIndices[i + 1] = outEdgesList.Count;
+                outIndices[i + 1] = (ushort)outEdgesList.Count;
             }
+
             var outEdges = builder.Allocate(ref root.OutgoingEdges, outEdgesList.Count);
             for (int i = 0; i < outEdgesList.Count; i++) outEdges[i] = outEdgesList[i];
 
-            var incomingGroups = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<LinkEdge>>();
+            var incomingGroups =
+                new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<LinkEdge>>();
             foreach (var link in links)
             {
                 if (!incomingGroups.TryGetValue(link.TargetID, out var list))
                     incomingGroups[link.TargetID] = list = new System.Collections.Generic.List<LinkEdge>();
                 list.Add(new LinkEdge { TargetId = link.SourceID, TargetType = link.SourceType });
             }
+
             var inIndices = builder.Allocate(ref root.IncomingIndices, maxId + 2);
             var inEdgesList = new System.Collections.Generic.List<LinkEdge>();
             inIndices[0] = 0;
             for (int i = 0; i <= maxId; i++)
             {
                 if (incomingGroups.TryGetValue(i, out var edges)) inEdgesList.AddRange(edges);
-                inIndices[i + 1] = inEdgesList.Count;
+                inIndices[i + 1] = (ushort)inEdgesList.Count;
             }
+
             var inEdges = builder.Allocate(ref root.IncomingEdges, inEdgesList.Count);
             for (int i = 0; i < inEdgesList.Count; i++) inEdges[i] = inEdgesList[i];
         }
@@ -189,39 +197,53 @@ namespace GraphTookKitDB.Runtime.ECS
         private static int CalculateMaxEntityId(GDBAsset asset)
         {
             int max = 0;
-            if (asset.Achievements != null && asset.Achievements.Count > 0) max = math.max(max, asset.Achievements.Count - 1);
-            if (asset.AchievementStates != null && asset.AchievementStates.Count > 0) max = math.max(max, asset.AchievementStates.Count - 1);
+            if (asset.Achievements is { Count: > 0 }) max = math.max(max, asset.Achievements.Count - 1);
+            if (asset.AchievementStates != null && asset.AchievementStates.Count > 0)
+                max = math.max(max, asset.AchievementStates.Count - 1);
             if (asset.AIs != null && asset.AIs.Count > 0) max = math.max(max, asset.AIs.Count - 1);
             if (asset.AIStates != null && asset.AIStates.Count > 0) max = math.max(max, asset.AIStates.Count - 1);
             if (asset.Characters != null && asset.Characters.Count > 0) max = math.max(max, asset.Characters.Count - 1);
-            if (asset.CharacterStates != null && asset.CharacterStates.Count > 0) max = math.max(max, asset.CharacterStates.Count - 1);
+            if (asset.CharacterStates != null && asset.CharacterStates.Count > 0)
+                max = math.max(max, asset.CharacterStates.Count - 1);
             if (asset.Combats != null && asset.Combats.Count > 0) max = math.max(max, asset.Combats.Count - 1);
-            if (asset.CombatStates != null && asset.CombatStates.Count > 0) max = math.max(max, asset.CombatStates.Count - 1);
-            if (asset.Descriptions != null && asset.Descriptions.Count > 0) max = math.max(max, asset.Descriptions.Count - 1);
+            if (asset.CombatStates != null && asset.CombatStates.Count > 0)
+                max = math.max(max, asset.CombatStates.Count - 1);
+            if (asset.Descriptions != null && asset.Descriptions.Count > 0)
+                max = math.max(max, asset.Descriptions.Count - 1);
             if (asset.Economys != null && asset.Economys.Count > 0) max = math.max(max, asset.Economys.Count - 1);
-            if (asset.EconomyStates != null && asset.EconomyStates.Count > 0) max = math.max(max, asset.EconomyStates.Count - 1);
+            if (asset.EconomyStates != null && asset.EconomyStates.Count > 0)
+                max = math.max(max, asset.EconomyStates.Count - 1);
             if (asset.Effects != null && asset.Effects.Count > 0) max = math.max(max, asset.Effects.Count - 1);
-            if (asset.EffectStates != null && asset.EffectStates.Count > 0) max = math.max(max, asset.EffectStates.Count - 1);
+            if (asset.EffectStates != null && asset.EffectStates.Count > 0)
+                max = math.max(max, asset.EffectStates.Count - 1);
             if (asset.Equipments != null && asset.Equipments.Count > 0) max = math.max(max, asset.Equipments.Count - 1);
             if (asset.Guilds != null && asset.Guilds.Count > 0) max = math.max(max, asset.Guilds.Count - 1);
-            if (asset.GuildStates != null && asset.GuildStates.Count > 0) max = math.max(max, asset.GuildStates.Count - 1);
+            if (asset.GuildStates != null && asset.GuildStates.Count > 0)
+                max = math.max(max, asset.GuildStates.Count - 1);
             if (asset.Inventorys != null && asset.Inventorys.Count > 0) max = math.max(max, asset.Inventorys.Count - 1);
-            if (asset.InventoryStates != null && asset.InventoryStates.Count > 0) max = math.max(max, asset.InventoryStates.Count - 1);
+            if (asset.InventoryStates != null && asset.InventoryStates.Count > 0)
+                max = math.max(max, asset.InventoryStates.Count - 1);
             if (asset.Items != null && asset.Items.Count > 0) max = math.max(max, asset.Items.Count - 1);
             if (asset.Locations != null && asset.Locations.Count > 0) max = math.max(max, asset.Locations.Count - 1);
             if (asset.Missions != null && asset.Missions.Count > 0) max = math.max(max, asset.Missions.Count - 1);
-            if (asset.MissionStates != null && asset.MissionStates.Count > 0) max = math.max(max, asset.MissionStates.Count - 1);
+            if (asset.MissionStates != null && asset.MissionStates.Count > 0)
+                max = math.max(max, asset.MissionStates.Count - 1);
             if (asset.Names != null && asset.Names.Count > 0) max = math.max(max, asset.Names.Count - 1);
             if (asset.Objectives != null && asset.Objectives.Count > 0) max = math.max(max, asset.Objectives.Count - 1);
-            if (asset.ObjectiveStates != null && asset.ObjectiveStates.Count > 0) max = math.max(max, asset.ObjectiveStates.Count - 1);
+            if (asset.ObjectiveStates != null && asset.ObjectiveStates.Count > 0)
+                max = math.max(max, asset.ObjectiveStates.Count - 1);
             if (asset.Players != null && asset.Players.Count > 0) max = math.max(max, asset.Players.Count - 1);
             if (asset.Quests != null && asset.Quests.Count > 0) max = math.max(max, asset.Quests.Count - 1);
-            if (asset.QuestStates != null && asset.QuestStates.Count > 0) max = math.max(max, asset.QuestStates.Count - 1);
-            if (asset.RangeAsFloats != null && asset.RangeAsFloats.Count > 0) max = math.max(max, asset.RangeAsFloats.Count - 1);
-            if (asset.RangeAsInts != null && asset.RangeAsInts.Count > 0) max = math.max(max, asset.RangeAsInts.Count - 1);
+            if (asset.QuestStates != null && asset.QuestStates.Count > 0)
+                max = math.max(max, asset.QuestStates.Count - 1);
+            if (asset.RangeAsFloats != null && asset.RangeAsFloats.Count > 0)
+                max = math.max(max, asset.RangeAsFloats.Count - 1);
+            if (asset.RangeAsInts != null && asset.RangeAsInts.Count > 0)
+                max = math.max(max, asset.RangeAsInts.Count - 1);
             if (asset.Rewards != null && asset.Rewards.Count > 0) max = math.max(max, asset.Rewards.Count - 1);
             if (asset.Skills != null && asset.Skills.Count > 0) max = math.max(max, asset.Skills.Count - 1);
-            if (asset.SkillStates != null && asset.SkillStates.Count > 0) max = math.max(max, asset.SkillStates.Count - 1);
+            if (asset.SkillStates != null && asset.SkillStates.Count > 0)
+                max = math.max(max, asset.SkillStates.Count - 1);
             if (asset.Stats != null && asset.Stats.Count > 0) max = math.max(max, asset.Stats.Count - 1);
             if (asset.StatStates != null && asset.StatStates.Count > 0) max = math.max(max, asset.StatStates.Count - 1);
             if (asset.Tags != null && asset.Tags.Count > 0) max = math.max(max, asset.Tags.Count - 1);
@@ -233,13 +255,14 @@ namespace GraphTookKitDB.Runtime.ECS
         private static int CalculateMaxEntityIdFromLinks(System.Collections.Generic.List<Link> links)
         {
             int max = 0;
-            for (int i = 0; i < links.Count; i++)
+            foreach (var l in links)
             {
-                var l = links[i];
                 if (l.SourceID > max) max = l.SourceID;
                 if (l.TargetID > max) max = l.TargetID;
             }
+
             return max;
         }
     }
+#endif
 }

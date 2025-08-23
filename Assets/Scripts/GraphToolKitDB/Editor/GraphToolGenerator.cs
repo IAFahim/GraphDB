@@ -113,7 +113,6 @@ namespace GraphToolKitDB.Editor
 
         private void OnGUI()
         {
-            // --- ADDED MAIN SCROLL VIEW ---
             _mainScrollPosition = EditorGUILayout.BeginScrollView(_mainScrollPosition);
             {
                 DrawPreviewAndExport();
@@ -139,7 +138,8 @@ namespace GraphToolKitDB.Editor
 
             EditorGUI.BeginChangeCheck();
             _graphName = EditorGUILayout.TextField(
-                new GUIContent("Graph Name", "The base name for generated classes and the asset extension."), _graphName);
+                new GUIContent("Graph Name", "The base name for generated classes and the asset extension."),
+                _graphName);
             EditorGUILayout.LabelField("File Extension", _graphName.ToLowerInvariant().Replace(" ", ""));
 
             _targetMonoBehaviourScript = (MonoScript)EditorGUILayout.ObjectField(
@@ -160,8 +160,10 @@ namespace GraphToolKitDB.Editor
 
             EditorGUILayout.Space(4);
             EditorGUILayout.LabelField("Export Paths", EditorStyles.boldLabel);
-            _runtimePath = DrawPathSelector("Runtime Path", "Folder for runtime scripts (Asset, EntityType).", _runtimePath);
-            _editorPath = DrawPathSelector("Editor Path", "Folder for editor scripts (Graph, Nodes, Importer).", _editorPath);
+            _runtimePath = DrawPathSelector("Runtime Path", "Folder for runtime scripts (Asset, EntityType).",
+                _runtimePath);
+            _editorPath = DrawPathSelector("Editor Path", "Folder for editor scripts (Graph, Nodes, Importer).",
+                _editorPath);
             _ecsPath = DrawPathSelector("ECS/DOTS Path", "Folder for ECS scripts (Blob, Builder, Extensions, Baker).",
                 _ecsPath);
 
@@ -177,7 +179,8 @@ namespace GraphToolKitDB.Editor
 
                 if (_targetMonoBehaviourScript != null)
                 {
-                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_targetMonoBehaviourScript, out string guid, out long _);
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_targetMonoBehaviourScript, out string guid,
+                        out long _);
                     EditorPrefs.SetString(PrefsTargetScriptGuid, guid);
                 }
 
@@ -217,7 +220,6 @@ namespace GraphToolKitDB.Editor
             {
                 foreach (var type in _discoveredTypes)
                 {
-                
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(type.FullName);
                     EditorGUILayout.EndHorizontal();
@@ -294,7 +296,8 @@ namespace GraphToolKitDB.Editor
             var enabledFiles = _previewFiles.Where(f => f.Enabled).ToList();
             if (enabledFiles.Count == 0)
             {
-                EditorGUILayout.HelpBox("Nothing selected to generate. Toggle scripts above to preview.", MessageType.Info);
+                EditorGUILayout.HelpBox("Nothing selected to generate. Toggle scripts above to preview.",
+                    MessageType.Info);
             }
             else
             {
@@ -465,7 +468,8 @@ namespace GraphToolKitDB.Editor
                 (_genEditorGraph || _genImporter) && string.IsNullOrEmpty(_editorPath) ||
                 (_genBlobAsset || _genBaker) && string.IsNullOrEmpty(_ecsPath))
             {
-                EditorUtility.DisplayDialog("Error", "Please set valid export paths for all selected script groups.", "OK");
+                EditorUtility.DisplayDialog("Error", "Please set valid export paths for all selected script groups.",
+                    "OK");
                 return;
             }
 
@@ -582,7 +586,6 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine($"namespace {_editorNamespace}");
             builder.AppendLine("{");
             builder.AppendLine(GetSerializableDictionaryCode());
-            builder.AppendLine("    public class Linkable {}");
             builder.AppendLine();
             builder.AppendLine("    #region Graph Definition");
             builder.AppendLine($"    [Graph(\"{assetExtension}\")]");
@@ -616,7 +619,8 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine("        public static T GetPortValue<T>(IPort port) {");
             builder.AppendLine("            if (port.isConnected) {");
             builder.AppendLine("                var sourceNode = port.firstConnectedPort?.GetNode();");
-            builder.AppendLine("                if (sourceNode is IConstantNode c) { c.TryGetValue(out T v); return v; }");
+            builder.AppendLine(
+                "                if (sourceNode is IConstantNode c) { c.TryGetValue(out T v); return v; }");
             builder.AppendLine(
                 "                if (sourceNode is IVariableNode vn) { vn.variable.TryGetDefaultValue(out T v); return v; }");
             builder.AppendLine("            } else { port.TryGetValue(out T v); return v; }");
@@ -626,13 +630,14 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine("    #endregion");
             builder.AppendLine();
             builder.AppendLine("    #region Node Definitions");
-            // --- MODIFIED IDataNode INTERFACE ---
             builder.AppendLine();
             builder.AppendLine(
                 "    public interface IDataNode : INode\n    {\n        ushort NodeID { get; set; }\n        EntityType EntityType { get; }\n    }");
             builder.AppendLine();
+            builder.AppendLine("    [UseWithContext(typeof(AchievementNode), typeof(AchievementStateNode))]// all nodes need to be added manually, as it the only supported way// YOU GEMINI AI ADD ALL\n    [Serializable]\n    public class EntryIDBlock : BlockNode\n    {\n        public const string OptionLink = \"Schema\";\n\n        protected override void OnDefineOptions(IOptionDefinitionContext context)\n        {\n            base.OnDefineOptions(context);\n            context.AddOption<EntryIDSchema>(OptionLink).Build();\n        }\n    }");
+            builder.AppendLine();
             builder.AppendLine(
-                "    [Serializable]\n    public abstract class GraphDBNode : ContextNode, IDataNode\n    {\n        public const string PortInputLink = \"InputLink\";\n        public const string PortOutputLink = \"OutputLink\";\n        \n        [SerializeField] private ushort nodeId;\n        public ushort NodeID\n        {\n            get => nodeId;\n            set => nodeId = value;\n        }\n\n        public abstract EntityType EntityType { get; }\n\n        protected override void OnDefinePorts(IPortDefinitionContext context)\n        {\n            context.AddInputPort<Linkable>(PortInputLink).WithDisplayName(\"In\").Build();\n            context.AddOutputPort<Linkable>(PortOutputLink).WithDisplayName(\"Out\").Build();\n        }\n    }");
+                "    [Serializable]\n    public abstract class GraphDBNode : ContextNode, IDataNode\n    {\n        public const string PortInputLink = \"InputLink\";\n        public const string PortOutputLink = \"OutputLink\";\n        \n        [SerializeField] private ushort nodeId;\n        public ushort NodeID\n        {\n            get => nodeId;\n            set => nodeId = value;\n        }\n\n        public abstract EntityType EntityType { get; }\n\n        protected override void OnDefinePorts(IPortDefinitionContext context)\n        {\n            context.AddInputPort<ushort>(PortInputLink).WithDisplayName(\"In\").Build();\n            context.AddOutputPort<ushort>(PortOutputLink).WithDisplayName(\"Out\").Build();\n        }\n    }");
             builder.AppendLine();
             builder.AppendLine(
                 "   public class DataNode : IDataNode\n    {\n        public ushort NodeID { get; set; }\n        public EntityType EntityType { get; set; }\n    }");
@@ -681,13 +686,13 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine("            if (graph == null) return;");
             builder.AppendLine();
             builder.AppendLine($"            var runtimeAsset = ScriptableObject.CreateInstance<{assetClassName}>();");
-            builder.AppendLine("            var nodeToIdMap = new Dictionary<INode, DataNode>();");
+            builder.AppendLine("            var nodeToIdMap = new Dictionary<INode, GraphDBNode>();");
             builder.AppendLine();
             builder.AppendLine(
                 "            // --- PASS 1: Create all data entries and map nodes to their index-based ID ---");
             foreach (var type in _discoveredTypes.Where(t => t.Name != "Link"))
             {
-                string nodeClassName = $"{type.Name}DefinitionNode";
+                string nodeClassName = $"{type.Name}Node";
                 string pluralName = SimplePluralize(type.Name);
                 builder.AppendLine(
                     $"            var {type.Name.ToLower()}Nodes = graph.GetNodes().OfType<{nodeClassName}>().ToList();");
@@ -705,41 +710,18 @@ namespace GraphToolKitDB.Editor
                 }
 
                 builder.AppendLine($"                runtimeAsset.{pluralName}.Add(data);");
-                builder.AppendLine("                nodeToIdMap[node] = new()\n                {\n                    NodeID = i,\n                    EntityType = node.EntityType\n                };");
+                builder.AppendLine(
+                    "                node.NodeID = i;\n                nodeToIdMap[node] = node;");
                 builder.AppendLine("            }");
             }
 
-            if (hasLinkSupport)
-            {
-                builder.AppendLine();
-                builder.AppendLine("            // --- PASS 2: Create links by traversing graph connections ---");
-                builder.AppendLine("            ushort linkId = 0;");
-                builder.AppendLine("            foreach (var sourceNode in graph.GetNodes().OfType<IDataNode>())");
-                builder.AppendLine("            {");
-                builder.AppendLine(
-                    "                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == GraphDBNode.PortOutputLink);");
-                builder.AppendLine("                if (outputPort == null || !outputPort.isConnected) continue;");
-                builder.AppendLine("                if (!nodeToIdMap.TryGetValue(sourceNode, out var sourceData)) continue;");
-                builder.AppendLine();
-                builder.AppendLine("                var connectedPorts = new List<IPort>();");
-                builder.AppendLine("                outputPort.GetConnectedPorts(connectedPorts);");
-                builder.AppendLine(
-                    "                foreach (var connectedPort in connectedPorts.Where(p => p.name == GraphDBNode.PortInputLink))");
-                builder.AppendLine("                {");
-                builder.AppendLine("                    var targetNode = connectedPort.GetNode();");
-                builder.AppendLine(
-                    "                    if (!nodeToIdMap.TryGetValue(targetNode, out var targetData)) continue;");
-                builder.AppendLine();
-                builder.AppendLine("                    var link = new Link\n                    {\n                        ID = linkId++,\n                        SourceType = sourceData.EntityType,\n                        SourceID = sourceData.NodeID,\n                        TargetType = targetData.EntityType,\n                        TargetID = targetData.NodeID,\n                    };");
-                builder.AppendLine("                    runtimeAsset.Links.Add(link);");
-                builder.AppendLine("                }");
-                builder.AppendLine("            }");
-            }
-
-            builder.AppendLine();
+            if (hasLinkSupport) builder.AppendLine("            PopulateLink(graph, nodeToIdMap, runtimeAsset);");
             builder.AppendLine($"            ctx.AddObjectToAsset(\"{_graphName}\", runtimeAsset);");
             builder.AppendLine("            ctx.SetMainObject(runtimeAsset);");
             builder.AppendLine("        }");
+            builder.AppendLine();
+            builder.AppendLine("        private static void PopulateLink(GDBGraph graph, Dictionary<INode, GraphDBNode> nodeToIdMap, GDBAsset runtimeAsset)\n        {\n            ushort linkId = 0;\n            foreach (var sourceNode in graph.GetNodes().OfType<GraphDBNode>())\n            {\n                var outputPort = sourceNode.GetOutputPorts().FirstOrDefault(p => p.name == GraphDBNode.PortOutputLink);\n                foreach (var linkBlock in sourceNode.blockNodes)\n                {\n                    var nodeOption = linkBlock.GetNodeOptionByName(EntryIDBlock.OptionLink);\n                    if (!nodeOption.TryGetValue(out EntryIDSchema entryIDSchema)) continue;\n                    if (entryIDSchema == null) continue;\n                    entryIDSchema.Id = sourceNode.NodeID;\n                    entryIDSchema.Type = sourceNode.EntityType;\n                }\n\n                if (outputPort == null || !outputPort.isConnected) continue;\n\n\n                var connectedPorts = new List<IPort>();\n                outputPort.GetConnectedPorts(connectedPorts);\n                foreach (var connectedPort in connectedPorts.Where(p => p.name == GraphDBNode.PortInputLink))\n                {\n                    var targetNode = connectedPort.GetNode();\n                    if (!nodeToIdMap.TryGetValue(targetNode, out var targetData)) continue;\n                    var link = new Link\n                    {\n                        ID = linkId++,\n                        SourceType = sourceNode.EntityType,\n                        SourceID = sourceNode.NodeID,\n                        TargetType = targetData.EntityType,\n                        TargetID = targetData.NodeID,\n                    };\n                    runtimeAsset.Links.Add(link);\n                }\n            }\n        }");
+            
             builder.AppendLine("    }");
             builder.AppendLine("    #endregion");
             builder.AppendLine("}");
@@ -778,9 +760,9 @@ namespace GraphToolKitDB.Editor
             if (hasLink)
             {
                 builder.AppendLine("        public BlobArray<Link> Links;");
-                builder.AppendLine("        public BlobArray<int> OutgoingIndices;");
+                builder.AppendLine("        public BlobArray<ushort> OutgoingIndices;");
                 builder.AppendLine("        public BlobArray<LinkEdge> OutgoingEdges;");
-                builder.AppendLine("        public BlobArray<int> IncomingIndices;");
+                builder.AppendLine("        public BlobArray<ushort> IncomingIndices;");
                 builder.AppendLine("        public BlobArray<LinkEdge> IncomingEdges;");
             }
 
@@ -793,7 +775,7 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine("    // Edge data for CSR graph traversal");
                 builder.AppendLine("    public struct LinkEdge");
                 builder.AppendLine("    {");
-                builder.AppendLine("        public int TargetId;");
+                builder.AppendLine("        public ushort TargetId;");
                 builder.AppendLine("        public EntityType TargetType;");
                 builder.AppendLine("    }");
                 builder.AppendLine();
@@ -804,7 +786,8 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine($"        public BlobAssetReference<{blobClassName}> Blob;");
             builder.AppendLine("    }");
             builder.AppendLine();
-
+            
+            builder.AppendLine("#if UNITY_EDITOR");
             builder.AppendLine($"    public static class {_graphName}BlobBuilder");
             builder.AppendLine("    {");
             builder.AppendLine($"        public static BlobAssetReference<{blobClassName}> CreateBlobAsset(this " +
@@ -838,7 +821,7 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine(
                 "        private static void CopyArray<T>(BlobBuilder builder, ref BlobArray<T> target, System.Collections.Generic.List<T> source) where T : struct");
             builder.AppendLine("        {");
-            builder.AppendLine("            var array = builder.Allocate(ref target, source != null ? source.Count : 0);");
+            builder.AppendLine("            var array = builder.Allocate(ref target, source?.Count ?? 0);");
             builder.AppendLine("            if (source == null || source.Count == 0) return;");
             builder.AppendLine("            for (int i = 0; i < source.Count; i++) array[i] = source[i];");
             builder.AppendLine("        }");
@@ -870,14 +853,15 @@ namespace GraphToolKitDB.Editor
                     "                list.Add(new LinkEdge { TargetId = link.TargetID, TargetType = link.TargetType });");
                 builder.AppendLine("            }");
                 builder.AppendLine();
-                builder.AppendLine("            var outIndices = builder.Allocate(ref root.OutgoingIndices, maxId + 2);");
+                builder.AppendLine(
+                    "            var outIndices = builder.Allocate(ref root.OutgoingIndices, maxId + 2);");
                 builder.AppendLine("            var outEdgesList = new System.Collections.Generic.List<LinkEdge>();");
                 builder.AppendLine("            outIndices[0] = 0;");
                 builder.AppendLine("            for (int i = 0; i <= maxId; i++)");
                 builder.AppendLine("            {");
                 builder.AppendLine(
                     "                if (outgoingGroups.TryGetValue(i, out var edges)) outEdgesList.AddRange(edges);");
-                builder.AppendLine("                outIndices[i + 1] = outEdgesList.Count;");
+                builder.AppendLine("                outIndices[i + 1] = (ushort)outEdgesList.Count;");
                 builder.AppendLine("            }");
                 builder.AppendLine(
                     "            var outEdges = builder.Allocate(ref root.OutgoingEdges, outEdgesList.Count);");
@@ -894,18 +878,20 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine(
                     "                list.Add(new LinkEdge { TargetId = link.SourceID, TargetType = link.SourceType });");
                 builder.AppendLine("            }");
-                builder.AppendLine("            var inIndices = builder.Allocate(ref root.IncomingIndices, maxId + 2);");
+                builder.AppendLine(
+                    "            var inIndices = builder.Allocate(ref root.IncomingIndices, maxId + 2);");
                 builder.AppendLine("            var inEdgesList = new System.Collections.Generic.List<LinkEdge>();");
                 builder.AppendLine("            inIndices[0] = 0;");
                 builder.AppendLine("            for (int i = 0; i <= maxId; i++)");
                 builder.AppendLine("            {");
                 builder.AppendLine(
                     "                if (incomingGroups.TryGetValue(i, out var edges)) inEdgesList.AddRange(edges);");
-                builder.AppendLine("                inIndices[i + 1] = inEdgesList.Count;");
+                builder.AppendLine("                inIndices[i + 1] = (ushort)inEdgesList.Count;");
                 builder.AppendLine("            }");
                 builder.AppendLine(
                     "            var inEdges = builder.Allocate(ref root.IncomingEdges, inEdgesList.Count);");
-                builder.AppendLine("            for (int i = 0; i < inEdgesList.Count; i++) inEdges[i] = inEdgesList[i];");
+                builder.AppendLine(
+                    "            for (int i = 0; i < inEdgesList.Count; i++) inEdges[i] = inEdgesList[i];");
                 builder.AppendLine("        }");
                 builder.AppendLine();
             }
@@ -917,7 +903,7 @@ namespace GraphToolKitDB.Editor
             {
                 string plural = SimplePluralize(t.Name);
                 builder.AppendLine(
-                    $"            if (asset.{plural} != null && asset.{plural}.Count > 0) max = math.max(max, asset.{plural}.Count - 1);");
+                    $"            if (asset.{plural} is {{ Count: > 0 }}) max = math.max(max, asset.{plural}.Count - 1);");
             }
 
             builder.AppendLine("            return max;");
@@ -926,20 +912,11 @@ namespace GraphToolKitDB.Editor
             {
                 builder.AppendLine();
                 builder.AppendLine(
-                    "        private static int CalculateMaxEntityIdFromLinks(System.Collections.Generic.List<Link> links)");
-                builder.AppendLine("        {");
-                builder.AppendLine("            int max = 0;");
-                builder.AppendLine("            for (int i = 0; i < links.Count; i++)");
-                builder.AppendLine("            {");
-                builder.AppendLine("                var l = links[i];");
-                builder.AppendLine("                if (l.SourceID > max) max = l.SourceID;");
-                builder.AppendLine("                if (l.TargetID > max) max = l.TargetID;");
-                builder.AppendLine("            }");
-                builder.AppendLine("            return max;");
-                builder.AppendLine("        }");
+                    "        private static int CalculateMaxEntityIdFromLinks(System.Collections.Generic.List<Link> links)\n        {\n            int max = 0;\n            foreach (var l in links)\n            {\n                if (l.SourceID > max) max = l.SourceID;\n                if (l.TargetID > max) max = l.TargetID;\n            }\n            return max;\n        }");
             }
 
             builder.AppendLine("    }");
+            builder.AppendLine("#endif");
             builder.AppendLine("}");
             return builder.ToString();
         }
@@ -969,7 +946,7 @@ namespace GraphToolKitDB.Editor
             // GetEntity<T>
             builder.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
             builder.AppendLine(
-                $"        public static ref readonly T GetEntity<T>(this ref {blobClassName} db, int id) where T : struct");
+                $"        public static ref readonly T GetEntity<T>(this ref {blobClassName} db, ushort id) where T : struct");
             builder.AppendLine("        {");
             foreach (var t in blobTypes.Where(t => t.Name != "Link"))
             {
@@ -987,7 +964,7 @@ namespace GraphToolKitDB.Editor
                 // Outgoing/Incoming
                 builder.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
                 builder.AppendLine(
-                    $"        public static ReadOnlySpan<LinkEdge> GetOutgoingEdges(this ref {blobClassName} db, int entityId)");
+                    $"        public static ReadOnlySpan<LinkEdge> GetOutgoingEdges(this ref {blobClassName} db, ushort entityId)");
                 builder.AppendLine("        {");
                 builder.AppendLine(
                     "            if (entityId >= db.OutgoingIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;");
@@ -1001,7 +978,7 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine();
                 builder.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
                 builder.AppendLine(
-                    $"        public static ReadOnlySpan<LinkEdge> GetIncomingEdges(this ref {blobClassName} db, int entityId)");
+                    $"        public static ReadOnlySpan<LinkEdge> GetIncomingEdges(this ref {blobClassName} db, ushort entityId)");
                 builder.AppendLine("        {");
                 builder.AppendLine(
                     "            if (entityId >= db.IncomingIndices.Length - 1) return ReadOnlySpan<LinkEdge>.Empty;");
@@ -1015,7 +992,7 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine();
                 builder.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
                 builder.AppendLine(
-                    $"        public static void GetLinkedEntities<T>(this ref {blobClassName} db, int sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged");
+                    $"        public static void GetLinkedEntities<T>(this ref {blobClassName} db, ushort sourceId, EntityType targetType, ref NativeList<T> results) where T : unmanaged");
                 builder.AppendLine("        {");
                 builder.AppendLine("            results.Clear();");
                 builder.AppendLine("            var edges = db.GetOutgoingEdges(sourceId);");
@@ -1025,7 +1002,7 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine("        }");
                 builder.AppendLine();
                 builder.AppendLine(
-                    $"        public static bool HasPath(this ref {blobClassName} db, int sourceId, int targetId, int maxDepth = 6)");
+                    $"        public static bool HasPath(this ref {blobClassName} db, ushort sourceId, ushort targetId, ushort maxDepth = 6)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            if (sourceId == targetId) return true;");
                 builder.AppendLine(
@@ -1049,7 +1026,7 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine("        }");
                 builder.AppendLine();
                 builder.AppendLine(
-                    $"        private static bool HasPathRecursive(ref {blobClassName} db, int current, int target, int depth, bool* visited)");
+                    $"        private static bool HasPathRecursive(ref {blobClassName} db, ushort current, ushort target, ushort depth, bool* visited)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            if (current == target) return true;");
                 builder.AppendLine("            if (depth <= 0 || visited[current]) return false;");
@@ -1057,12 +1034,12 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine("            var edges = db.GetOutgoingEdges(current);");
                 builder.AppendLine("            for (int i = 0; i < edges.Length; i++)");
                 builder.AppendLine(
-                    "                if (HasPathRecursive(ref db, edges[i].TargetId, target, depth - 1, visited)) return true;");
+                    "                if (HasPathRecursive(ref db, edges[i].TargetId, target, (ushort)(depth - 1), visited)) return true;");
                 builder.AppendLine("            return false;");
                 builder.AppendLine("        }");
                 builder.AppendLine();
                 builder.AppendLine(
-                    $"        private static bool HasPathRecursiveHeap(ref {blobClassName} db, int current, int target, int depth, NativeArray<bool> visited)");
+                    $"        private static bool HasPathRecursiveHeap(ref {blobClassName} db, ushort current, ushort target, ushort depth, NativeArray<bool> visited)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            if (current == target) return true;");
                 builder.AppendLine("            if (depth <= 0 || visited[current]) return false;");
@@ -1070,13 +1047,13 @@ namespace GraphToolKitDB.Editor
                 builder.AppendLine("            var edges = db.GetOutgoingEdges(current);");
                 builder.AppendLine("            for (int i = 0; i < edges.Length; i++)");
                 builder.AppendLine(
-                    "                if (HasPathRecursiveHeap(ref db, edges[i].TargetId, target, depth - 1, visited)) return true;");
+                    "                if (HasPathRecursiveHeap(ref db, edges[i].TargetId, target, (ushort)(depth - 1), visited)) return true;");
                 builder.AppendLine("            return false;");
                 builder.AppendLine("        }");
                 builder.AppendLine();
                 builder.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
                 builder.AppendLine(
-                    $"        public static bool IsConnectedTo(this ref {blobClassName} db, int sourceId, int targetId, EntityType targetType = EntityType.None)");
+                    $"        public static bool IsConnectedTo(this ref {blobClassName} db, ushort sourceId, ushort targetId, EntityType targetType = EntityType.None)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            var edges = db.GetOutgoingEdges(sourceId);");
                 builder.AppendLine("            for (int i = 0; i < edges.Length; i++)");
@@ -1096,7 +1073,9 @@ namespace GraphToolKitDB.Editor
             string assetClassName = $"{_graphName}Asset";
             var builder = new StringBuilder();
 
-            builder.AppendLine($"// ----- AUTO-GENERATED ECS AUTHORING + BAKER BY {nameof(GraphToolGenerator)}.cs -----");
+            builder.AppendLine(
+                $"// ----- AUTO-GENERATED ECS AUTHORING + BAKER BY {nameof(GraphToolGenerator)}.cs -----");
+            builder.AppendLine("UNITY_EDITOR");
             builder.AppendLine();
             builder.AppendLine("using Unity.Entities;");
             builder.AppendLine("using UnityEngine;");
@@ -1120,18 +1099,18 @@ namespace GraphToolKitDB.Editor
             builder.AppendLine("        }");
             builder.AppendLine("    }");
             builder.AppendLine("}");
+            builder.AppendLine("#endif");
             return builder.ToString();
         }
 
         private void GenerateNodeClassForType(StringBuilder builder, Type dataType)
         {
-            string nodeClassName = $"{dataType.Name}DefinitionNode";
+            string nodeClassName = $"{dataType.Name}Node";
             var fields = dataType.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
             builder.AppendLine($"    [Serializable]");
             builder.AppendLine($"    public class {nodeClassName} : GraphDBNode, IDataNode");
             builder.AppendLine("    {");
-            // --- ADDED EntityType PROPERTY ---
             builder.AppendLine($"        public override EntityType EntityType => EntityType.{dataType.Name};");
             builder.AppendLine();
             foreach (var field in fields.Where(f =>

@@ -7,9 +7,19 @@ using UnityEngine;
 
 namespace GraphToolKitDB.Runtime
 {
-    public interface IStateful<out T> where T : struct
+    public interface IStateful<T> where T : struct
     {
         T CreateState();
+        // void OnEnter();
+        // NodeState OnUpdate(T entry);
+        // void OnExit();
+    }
+
+    public enum NodeState : byte
+    {
+        Success, // Node completed its task successfully
+        Failure, // Node failed to complete its task
+        Running // Node is still executing
     }
 
 // Core Entity Structs

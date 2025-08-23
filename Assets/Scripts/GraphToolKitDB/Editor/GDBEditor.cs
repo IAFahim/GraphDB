@@ -126,6 +126,19 @@ namespace GraphTookKitDB.Editor
         EntityType EntityType { get; }
     }
 
+    [UseWithContext(typeof(AchievementNode), typeof(AchievementStateNode))]// all nodes need to be added manually, as it the only supported way// YOU GEMINI AI ADD ALL
+    [Serializable]
+    public class EntryIDBlock : BlockNode
+    {
+        public const string OptionLink = "Schema";
+
+        protected override void OnDefineOptions(IOptionDefinitionContext context)
+        {
+            base.OnDefineOptions(context);
+            context.AddOption<EntryIDSchema>(OptionLink).Build();
+        }
+    }
+
     [Serializable]
     public abstract class GraphDBNode : ContextNode, IDataNode
     {
@@ -154,7 +167,7 @@ namespace GraphTookKitDB.Editor
         public EntityType EntityType { get; set; }
     }
     [Serializable]
-    public class AchievementDefinitionNode : GraphDBNode, IDataNode
+    public class AchievementNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Achievement;
 
@@ -175,7 +188,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class AchievementStateDefinitionNode : GraphDBNode, IDataNode
+    public class AchievementStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.AchievementState;
 
@@ -192,7 +205,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class AIDefinitionNode : GraphDBNode, IDataNode
+    public class AINode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.AI;
 
@@ -213,7 +226,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class AIStateDefinitionNode : GraphDBNode, IDataNode
+    public class AIStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.AIState;
 
@@ -230,7 +243,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CharacterDefinitionNode : GraphDBNode, IDataNode
+    public class CharacterNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Character;
 
@@ -251,7 +264,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CharacterStateDefinitionNode : GraphDBNode, IDataNode
+    public class CharacterStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.CharacterState;
 
@@ -270,7 +283,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CombatDefinitionNode : GraphDBNode, IDataNode
+    public class CombatNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Combat;
 
@@ -291,7 +304,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class CombatStateDefinitionNode : GraphDBNode, IDataNode
+    public class CombatStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.CombatState;
 
@@ -308,7 +321,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class DescriptionDefinitionNode : GraphDBNode, IDataNode
+    public class DescriptionNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Description;
 
@@ -325,7 +338,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EconomyDefinitionNode : GraphDBNode, IDataNode
+    public class EconomyNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Economy;
 
@@ -346,7 +359,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EconomyStateDefinitionNode : GraphDBNode, IDataNode
+    public class EconomyStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.EconomyState;
 
@@ -363,7 +376,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EffectDefinitionNode : GraphDBNode, IDataNode
+    public class EffectNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Effect;
 
@@ -384,7 +397,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EffectStateDefinitionNode : GraphDBNode, IDataNode
+    public class EffectStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.EffectState;
 
@@ -401,7 +414,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class EquipmentDefinitionNode : GraphDBNode, IDataNode
+    public class EquipmentNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Equipment;
 
@@ -422,7 +435,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class GuildDefinitionNode : GraphDBNode, IDataNode
+    public class GuildNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Guild;
 
@@ -443,7 +456,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class GuildStateDefinitionNode : GraphDBNode, IDataNode
+    public class GuildStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.GuildState;
 
@@ -460,7 +473,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class InventoryDefinitionNode : GraphDBNode, IDataNode
+    public class InventoryNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Inventory;
 
@@ -479,7 +492,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class InventoryStateDefinitionNode : GraphDBNode, IDataNode
+    public class InventoryStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.InventoryState;
 
@@ -496,7 +509,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ItemDefinitionNode : GraphDBNode, IDataNode
+    public class ItemNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Item;
 
@@ -519,7 +532,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class LocationDefinitionNode : GraphDBNode, IDataNode
+    public class LocationNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Location;
 
@@ -540,7 +553,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class MissionDefinitionNode : GraphDBNode, IDataNode
+    public class MissionNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Mission;
 
@@ -559,7 +572,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class MissionStateDefinitionNode : GraphDBNode, IDataNode
+    public class MissionStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.MissionState;
 
@@ -578,7 +591,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class NameDefinitionNode : GraphDBNode, IDataNode
+    public class NameNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Name;
 
@@ -595,7 +608,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ObjectiveDefinitionNode : GraphDBNode, IDataNode
+    public class ObjectiveNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Objective;
 
@@ -614,7 +627,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class ObjectiveStateDefinitionNode : GraphDBNode, IDataNode
+    public class ObjectiveStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.ObjectiveState;
 
@@ -631,7 +644,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class PlayerDefinitionNode : GraphDBNode, IDataNode
+    public class PlayerNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Player;
 
@@ -652,7 +665,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class QuestDefinitionNode : GraphDBNode, IDataNode
+    public class QuestNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Quest;
 
@@ -671,7 +684,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class QuestStateDefinitionNode : GraphDBNode, IDataNode
+    public class QuestStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.QuestState;
 
@@ -688,7 +701,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RangeAsFloatDefinitionNode : GraphDBNode, IDataNode
+    public class RangeAsFloatNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.RangeAsFloat;
 
@@ -707,7 +720,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RangeAsIntDefinitionNode : GraphDBNode, IDataNode
+    public class RangeAsIntNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.RangeAsInt;
 
@@ -726,7 +739,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class RewardDefinitionNode : GraphDBNode, IDataNode
+    public class RewardNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Reward;
 
@@ -747,7 +760,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class SkillDefinitionNode : GraphDBNode, IDataNode
+    public class SkillNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Skill;
 
@@ -768,7 +781,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class SkillStateDefinitionNode : GraphDBNode, IDataNode
+    public class SkillStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.SkillState;
 
@@ -787,7 +800,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class StatDefinitionNode : GraphDBNode, IDataNode
+    public class StatNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Stat;
 
@@ -808,7 +821,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class StatStateDefinitionNode : GraphDBNode, IDataNode
+    public class StatStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.StatState;
 
@@ -825,7 +838,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TagDefinitionNode : GraphDBNode, IDataNode
+    public class TagNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.Tag;
 
@@ -842,7 +855,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TimeStateDefinitionNode : GraphDBNode, IDataNode
+    public class TimeStateNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.TimeState;
 
@@ -861,7 +874,7 @@ namespace GraphTookKitDB.Editor
     }
 
     [Serializable]
-    public class TimeTickDefinitionNode : GraphDBNode, IDataNode
+    public class TimeTickNode : GraphDBNode, IDataNode
     {
         public override EntityType EntityType => EntityType.TimeTick;
 
