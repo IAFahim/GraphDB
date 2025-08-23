@@ -1,0 +1,163 @@
+.NodeContainer {
+    border-top-color: var(--unity-colors-window-border);
+    border-right-color: var(--unity-colors-window-border);
+    border-bottom-color: var(--unity-colors-window-border);
+    border-left-color: var(--unity-colors-window-border);
+    position: relative;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-left-radius: 13px;
+    border-top-right-radius: 13px;
+    border-bottom-right-radius: 13px;
+    border-bottom-left-radius: 13px;
+}
+
+:root {
+    flex-grow: 1;
+    align-self: center;
+    justify-content: space-around;
+}
+
+.NodeBorder {
+    flex-grow: 0;
+    align-items: center;
+    justify-content: space-around;
+    align-self: center;
+    border-left-color: rgba(255, 255, 255, 0);
+    border-right-color: rgba(255, 255, 255, 0);
+    border-top-color: rgba(255, 255, 255, 0);
+    border-bottom-color: rgba(255, 255, 255, 0);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-bottom: 1px;
+    padding-left: 1px;
+}
+
+.NodeBorder:hover {
+    border-left-color: rgb(44, 77, 111);
+    border-right-color: rgb(44, 77, 111);
+    border-top-color: rgb(44, 77, 111);
+    border-bottom-color: rgb(44, 77, 111);
+}
+
+.Pressed {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(56, 122, 190);
+    border-right-color: rgb(56, 122, 190);
+    border-top-color: rgb(56, 122, 190);
+    border-bottom-color: rgb(56, 122, 190);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.Selected {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(56, 122, 190);
+    border-right-color: rgb(56, 122, 190);
+    border-top-color: rgb(56, 122, 190);
+    border-bottom-color: rgb(56, 122, 190);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+.Icon {
+    -unity-background-image-tint-color: var(--unity-colors-default-text);
+}
+
+.Selected:hover {
+    border-left-color: rgb(75, 164, 255);
+    border-right-color: rgb(75, 164, 255);
+    border-top-color: rgb(75, 164, 255);
+    border-bottom-color: rgb(75, 164, 255);
+}
+
+.Pressed:hover {
+    border-left-color: rgb(75, 164, 255);
+    border-right-color: rgb(75, 164, 255);
+    border-top-color: rgb(75, 164, 255);
+    border-bottom-color: rgb(75, 164, 255);
+}
+
+.DragHandle {
+    scale: 0 0;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-circ;
+}
+
+.NodeBorder:hover .DragHandle {
+    scale: 1 1;
+}
+
+.DragHandleHoverIndicator {
+    scale: 1 1;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-circ;
+}
+
+.DragHandle:hover .DragHandleHoverIndicator {
+    scale: 2 2;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-circ;
+}
+
+.CreatingConnection {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(253, 109, 64);
+    border-right-color: rgb(253, 109, 64);
+    border-top-color: rgb(253, 109, 64);
+    border-bottom-color: rgb(253, 109, 64);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    scale: 1.1 1.1;
+    transition-duration: 0.1s;
+}
+
+.CreatingConnection:hover {
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(253, 109, 64);
+    border-right-color: rgb(253, 109, 64);
+    border-top-color: rgb(253, 109, 64);
+    border-bottom-color: rgb(253, 109, 64);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    scale: 1.1 1.1;
+    transition-duration: 0.1s;
+}
+
+.CreatingConnection:hover .DragHandle {
+    scale: 0 0;
+}
+
+.Badge {
+    margin-right: -8px;
+}
