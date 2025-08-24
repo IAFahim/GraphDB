@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 102220264}
   - component: {fileID: 102220263}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 159625281}
   - component: {fileID: 159625280}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca90f0d61424493ca6f049eb046fcb36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DestroyComponentAuthoring
-  DestroyComponent: 1
+  DestroyComponent: 0
 --- !u!4 &159625282
 Transform:
   m_ObjectHideFlags: 0
@@ -294,7 +294,7 @@ GameObject:
   - component: {fileID: 667712176}
   - component: {fileID: 667712175}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -374,13 +374,13 @@ MonoBehaviour:
   - Health: 0
     Mana: 0
     Damage: 0
-  - Health: 0
+  - Health: 1
     Mana: 0
     Damage: 0
-  - Health: 0
+  - Health: 2
     Mana: 0
     Damage: 0
-  - Health: 0
+  - Health: 3
     Mana: 0
     Damage: 0
 --- !u!4 &1417872715
@@ -410,7 +410,7 @@ GameObject:
   - component: {fileID: 1536372624}
   - component: {fileID: 1536372622}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
